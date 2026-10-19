@@ -172,6 +172,7 @@ button:active, .back:active { transform: scale(.97); }
 .credits dd, .specs dd { color: var(--ink); text-transform: none; letter-spacing: .04em; font-size: 12px; }
 .credits a { transition: color .2s ease; }
 .credits dt a { color: inherit; }
+.credits .cred-gap { margin-top: 22px; }   /* a row set a little apart from the people (e.g. Files) */
 @media (hover: hover) { .credits dd a:hover { color: var(--muted); } .credits dt a:hover { color: var(--ink); } }
 .portfolio { margin-top: 36px; }
 .portfolio a { color: var(--ink); transition: color .2s ease; }
@@ -329,6 +330,16 @@ button:active, .back:active { transform: scale(.97); }
 }
 .none, .count { margin-top: 24px; color: var(--muted); }
 .count:empty { display: none; }
+/* the editorial notice: only on the archive list, in the clock's corner (the clock comes back on every other page) */
+.notice-fixed { position: fixed; left: calc(var(--gut) - 8px); bottom: 10px; z-index: 20; width: calc(50vw - 24px); max-width: 760px; margin: 0; padding: 4px 8px; background: var(--bg); color: var(--muted); font-size: 8.5px; line-height: 1.5; letter-spacing: .02em; text-transform: none; }
+.notice-fixed p + p { margin-top: .5em; }
+.notice-fixed a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.notice-fixed a:hover { color: var(--ink); }
+body:has(.notice-fixed) main { padding-bottom: 110px; }
+@media (max-width: 759px) {
+  .notice-fixed { position: static; width: auto; max-width: none; padding: 0 var(--gut) 24px; font-size: 9px; }
+  body:has(.notice-fixed) main { padding-bottom: 0; }
+}
 .letters .letter + .letter { margin-top: 32px; }
 .letters h2 { font: inherit; color: var(--muted); margin-bottom: 4px; }
 .letters .row a { grid-template-columns: minmax(0, 1fr) 150px; }
@@ -380,6 +391,11 @@ button:active, .back:active { transform: scale(.97); }
 .film-close:hover, .film-close:focus-visible { color: var(--ink); }
 .film .film-sound { left: 50%; bottom: 18px; transform: translateX(-50%); }
 @media (max-width: 759px) { .film video { max-width: 100vw; max-height: calc(100dvh - 130px); } }
+.clip-frame { width: min(calc(100vw - 140px), calc((100vh - 120px) * 16 / 9)); aspect-ratio: 16 / 9; background: #000; cursor: default; }
+.clip-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.clip-out { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; color: var(--muted); }
+.clip-out:hover, .clip-out:focus-visible { color: var(--ink); }
+@media (max-width: 759px) { .clip-frame { width: 100vw; } }
 .lightbox { transition: opacity .22s ease-out; }
 @media (max-width: 759px) {
   .lightbox img { max-width: 100vw; max-height: calc(100dvh - 130px); }
@@ -415,13 +431,15 @@ button:active, .back:active { transform: scale(.97); }
 .exp-modes button { padding: 4px 2px; }
 .exp-hint { color: var(--muted); max-width: 30vw; }
 .exp-stage {
-  position: absolute; inset: 0; overflow: hidden; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; transition: filter .7s ease;
+  position: absolute; inset: 0; overflow: hidden; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; transition: opacity .7s ease;
   /* things fade out before they reach the corners, so they never sit on the navigation */
   -webkit-mask-image: linear-gradient(#0000 0, #000 112px, #000 calc(100% - 104px), #0000 100%);
   mask-image: linear-gradient(#0000 0, #000 112px, #000 calc(100% - 104px), #0000 100%);
 }
 .exp-stage:active { cursor: grabbing; }
-.exp-stage.dim { filter: blur(9px); }
+/* opening something: the archive fades back (cheap to animate) and only then blurs, once, while it stands still */
+.exp-stage.dim { opacity: .4; }
+.exp-stage.blurred { filter: blur(9px); }
 .exp-item { position: absolute; left: 0; top: 0; color: var(--ink); will-change: transform, opacity; user-select: none; -webkit-user-select: none; text-transform: none; letter-spacing: .01em; }
 .exp-item:active { transform: none; }
 .exp-item.photo img { pointer-events: none; -webkit-user-drag: none; background: var(--smoke); }
@@ -537,7 +555,7 @@ button:active, .back:active { transform: scale(.97); }
 .js .page .tools, .js .page .show, .js .page .lost-text { animation-delay: 190ms; }
 .js .page .art-body, .js .page .letters, .js .page .lost-links { animation-delay: 260ms; }
 .js .page .rows .row { animation: rise .6s var(--ease-out) both; animation-delay: calc(240ms + var(--i, 0) * 55ms); }
-.js .home .hud, .js .explore .hud, .js .memory .hud { animation: fade .9s ease-out both; animation-delay: .2s; }
+.js .home .hud, .js .explore .hud, .js .memory .hud { animation: fade .9s ease-out backwards; animation-delay: .2s; }   /* backwards: once in, the corners can still fade out (Explore hides them when something is open) */
 
 /* photographs arrive as they come into view: they lift and sharpen */
 .js .strip .ph.wait img { opacity: 0; transform: translateY(18px); }
@@ -556,3 +574,86 @@ button:active, .back:active { transform: scale(.97); }
   .track, .slide, .peek, .exp-group { transition: none !important; }
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
+
+/* about */
+.about .art-body { width: min(900px, calc(100% - 2 * var(--gut))); }   /* wider text on About */
+.about .motto { margin: 2.2em 0 .6em; text-align: center; color: var(--ink); }
+.about .about-note { color: var(--muted); font-size: 11.5px; line-height: 1.7; }
+.about .about-note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.about-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.about-links a, .about-btn { display: inline-block; padding: 8px 14px; border: 1px solid var(--ink); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; color: var(--ink); transition: background .2s ease, color .2s ease; }
+@media (hover: hover) { .about-links a:hover, a.about-btn:hover { background: var(--ink); color: var(--bg); } }
+.about-btn.off { border-color: var(--muted); color: var(--muted); }
+.about-donate { margin-top: 14px; }
+.about-extra > p:not(.about-links):not(.about-donate) { text-transform: none; font-size: var(--fs-text); line-height: 1.75; letter-spacing: var(--tr-text); color: var(--ink); }
+
+.thanks .thanks-sign { text-align: center; color: var(--muted, #8a8a8a); margin-top: .4em; }
+.thanks .about-extra { margin-top: 2.4em; }
+/* About / Thank you: no Back link, title sits on the same column as the text */
+.about .art-head { width: min(900px, calc(100% - 2 * var(--gut))); margin: 0 auto; padding-left: 0; padding-right: 0; }
+.about .art-head .back { display: none; }
+.about .art-body { margin-top: 28px; }
+/* main pages (Archive, Designers, About, Thank you): the title sits closer to the top bar */
+:root { --top-page: 60px; }
+@media (max-width: 759px) { :root { --top-page: 52px; } }
+.index { padding-top: var(--top-page); }
+.about .art-head { padding-top: var(--top-page); }
+/* phones, Designers list: name on the left, city under it (there is no thumbnail column) */
+@media (max-width: 759px) {
+  .letters .row .t, .letters .row .c { grid-column: 1; justify-self: start; }
+  .letters .row .c { grid-row: 2; }
+}
+
+/* content pages: Back in the top-left corner, the name in the bottom-right corner (like the clock on the left) */
+.top .back-top { margin: 0; padding: 0; }
+.brand-fixed { position: fixed; right: calc(var(--gut) - 8px); bottom: 10px; margin: 0; padding: 3px 8px; background: var(--bg); color: var(--muted); white-space: nowrap; }
+.brand-fixed .bf-name { color: var(--ink); }
+@media (hover: hover) { .brand-fixed:hover { color: var(--ink); } }
+@media (min-width: 760px) { .page .foot .foot-l { display: none; } .page .foot { padding-top: 48px; } }
+@media (max-width: 759px) { .brand-fixed { display: none; } }
+/* articles and designer biographies: no name line at the bottom */
+body:has(main.article:not(.about)) .foot .foot-l { display: none; }
+
+/* ---------- Propose / Contribute: forms ---------- */
+.forms .ac-form { margin-top: 36px; }
+.forms .fld { margin: 0 0 26px; border: 0; padding: 0; min-width: 0; }
+.forms .fld label, .forms .fld legend { display: block; margin-bottom: 8px; color: var(--muted); }
+.forms input[type=text], .forms input[type=email], .forms textarea {
+  display: block; width: 100%; font: inherit; font-size: var(--fs-text); letter-spacing: var(--tr-text); text-transform: none; color: var(--ink);
+  background: none; border: 0; border-bottom: 1px solid var(--muted); border-radius: 0; padding: 4px 0 6px; outline: none;
+  -webkit-appearance: none; appearance: none; transition: border-color .2s ease;
+}
+.forms textarea { resize: vertical; min-height: 7.5em; line-height: 1.7; }
+.forms input:focus-visible, .forms textarea:focus-visible { border-bottom-color: var(--ink); }
+.forms ::placeholder { color: var(--muted); opacity: .7; }
+.forms .fld-count { display: block; text-align: right; margin-top: 6px; color: var(--muted); }
+.forms .fld-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 28px; }
+.forms .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.forms .pill { position: relative; cursor: pointer; }
+.forms .pill input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.forms .pill .pill-box { display: inline-block; padding: 7px 12px; border: 1px solid var(--muted); color: var(--muted); transition: background .2s ease, color .2s ease, border-color .2s ease; }
+.forms .pill input:checked + .pill-box { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.forms .pill input:focus-visible + .pill-box { outline: 1px solid var(--ink); outline-offset: 2px; }
+@media (hover: hover) { .forms .pill:hover .pill-box { border-color: var(--ink); color: var(--ink); } .forms .pill:hover input:checked + .pill-box { color: var(--bg); } }
+.forms .pills.need legend { color: var(--ink); }
+.forms .pills.need legend::after { content: " ←"; }
+.forms .hp { position: absolute; left: -9999px; }
+.forms .form-send { margin-top: 8px; }
+.forms button.about-btn { font: inherit; background: none; cursor: pointer; }
+@media (hover: hover) { .forms button.about-btn:hover { background: var(--ink); color: var(--bg); } }
+.forms button.about-btn:disabled { opacity: .4; cursor: default; }
+.forms .form-err, .forms .form-done > p:first-child { text-transform: none; font-size: var(--fs-text); line-height: 1.75; letter-spacing: var(--tr-text); color: var(--ink); margin-top: 18px; }
+.forms .form-err a { text-decoration: underline; text-underline-offset: 2px; }
+.forms .form-done { margin-top: 36px; outline: none; }
+.forms .form-done .about-links { margin-top: 22px; }
+.forms .form-demo { display: none; margin-top: 8px; color: var(--muted); }
+.forms .form-done.demo .form-demo { display: block; }
+/* already in the archive */
+.forms .already { margin: -6px 0 28px; padding: 14px 16px; background: var(--smoke); color: var(--ink); }
+.forms .already-head { text-transform: none; font-size: var(--fs-text); line-height: 1.7; letter-spacing: var(--tr-text); margin-bottom: 8px; }
+.forms .already ul { display: grid; gap: 6px; }
+.forms .already a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.forms .already a::after { content: " →"; }
+/* archive: a quiet way to ask for what is missing */
+.propose-cta { margin-top: 28px; color: var(--muted); }
+.none a { color: var(--ink); }

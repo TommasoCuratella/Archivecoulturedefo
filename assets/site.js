@@ -121,6 +121,38 @@
 
   /* ---------- a film opens large, with its sound; Esc or a click outside closes it ---------- */
   const SOUND = (on) => on ? '<span data-l="en">Sound on</span><span data-l="it" lang="it">Audio acceso</span>' : '<span data-l="en">Sound off</span><span data-l="it" lang="it">Audio spento</span>';
+  // a YouTube clip opened on the page, large, from a given second to another (data-yt, data-yt-start, data-yt-end);
+  // the link itself still leads to YouTube at the right minute if the player can't open
+  function openClip(a) {
+    const id = a.dataset.yt, s = parseInt(a.dataset.ytStart || "0", 10), e = parseInt(a.dataset.ytEnd || "0", 10);
+    const box = document.createElement("div");
+    box.className = "film clip fade";
+    box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-label", a.textContent.trim() || "Video");
+    const q = "autoplay=1&rel=0&playsinline=1&modestbranding=1" + (s ? "&start=" + s : "") + (e ? "&end=" + e : "");
+    box.innerHTML = '<div class="clip-frame"><iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + "?" + q + '" title="' + (a.textContent.trim() || "Video").replace(/"/g, "") + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'
+      + '<button type="button" class="film-close"><span data-l="en">Close</span><span data-l="it" lang="it">Chiudi</span></button>'
+      + '<a class="clip-out" href="' + a.href + '" target="_blank" rel="noopener">YouTube &nearr;</a>';
+    const cls = $(".film-close", box);
+    document.body.appendChild(box);
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => box.classList.remove("fade"));
+    cls.focus({ preventScroll: true });
+    const shut = () => {
+      box.classList.add("fade");
+      removeEventListener("keydown", key, true);
+      setTimeout(() => { box.remove(); document.body.style.overflow = ""; a.focus({ preventScroll: true }); }, 220);
+    };
+    const key = (ev) => { if (ev.key === "Escape") { ev.preventDefault(); shut(); } };
+    addEventListener("keydown", key, true);
+    box.addEventListener("click", (ev) => { if (ev.target === box || cls.contains(ev.target)) shut(); });
+  }
+  document.addEventListener("click", (ev) => {
+    const a = ev.target.closest && ev.target.closest("a[data-yt]");
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    ev.preventDefault(); openClip(a);
+  });
+
   function openFilm(small) {
     const box = document.createElement("div");
     box.className = "film fade";
@@ -289,7 +321,7 @@
     const norm = (t) => (t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
     const rows = $$(".row", rowsEl).map((li) => ({ li, text: norm(li.textContent + " " + li.dataset.title) }));
     rows.forEach((r, i) => r.li.style.setProperty("--i", i));
-    let cat = "all", full = null;
+    let cat = "all", full = null, onlyDesigner = "";
     const loadFull = () => {
       if (full) return full;
       full = fetch("/assets/archive.json").then((r) => r.json()).then((data) => {
@@ -304,10 +336,15 @@
       const words = norm(input.value).split(/\s+/).filter(Boolean);
       let shown = 0;
       for (const r of rows) {
-        const ok = (cat === "all" || r.li.dataset.cat === cat) && words.every((w) => r.text.includes(w));
+        // from a designer's page: only that designer's own articles (by their credits), not every text that names them
+        const byDesigner = onlyDesigner && norm(input.value).trim() === onlyDesigner;
+        const ok = (cat === "all" || r.li.dataset.cat === cat) && (byDesigner ? norm(r.li.dataset.designer) === onlyDesigner : words.every((w) => r.text.includes(w)));
         r.li.hidden = !ok; if (ok) shown++;
       }
       none.hidden = shown > 0;
+      // "no results — propose it": the search goes with you to the Propose page
+      const pl = $("a[data-propose]", none);
+      if (pl) { pl.dataset.base = pl.dataset.base || pl.getAttribute("href"); const v = input.value.trim(); pl.href = pl.dataset.base + (v ? "?q=" + encodeURIComponent(v) : ""); }
       countEl.textContent = words.length || cat !== "all"
         ? (lang() === "it" ? `${shown} di ${rows.length}` : `${shown} of ${rows.length}`) : "";
       document.dispatchEvent(new Event("ac:rows"));
@@ -346,6 +383,12 @@
       setCats(false);
     }));
     document.addEventListener("ac:lang", filter);
+    // arriving from a designer's page (archive?designer=Hedi+Slimane): the name is in the search bar and the list shows
+    // that designer's articles; archive?q=… is a plain search
+    let q0 = "", d0 = "";
+    try { const sp = new URLSearchParams(location.search); q0 = sp.get("q") || ""; d0 = sp.get("designer") || ""; } catch (e) {}
+    if (d0) { input.value = d0; onlyDesigner = norm(d0).trim(); filter(); }
+    else if (q0) { input.value = q0; filter(); loadFull().then(filter); }
   }
 
   /* ---------- indexes: the photograph of the entry in focus sits on the right.
@@ -354,7 +397,7 @@
   const links = $$("[data-peek]");
   if (peek && links.length && matchMedia("(hover: hover) and (min-width: 960px)").matches) {
     const pic = $("img", peek);
-    const list = links[0].closest(".rows, .letters") || links[0].parentElement;
+    const list = links[0].closest(".letters") || links[0].closest(".rows") || links[0].parentElement;   // the whole index (Designers has one list per letter)
     let y = 0, ty = 0, raf = 0, current = null;
     const loop = () => {
       y += (ty - y) * (reduceMotion ? 1 : 0.14);
@@ -367,25 +410,47 @@
       ty = cy === null ? restY() : Math.max(70, Math.min(innerHeight - h - 50, cy - h / 2));
       if (!raf) raf = requestAnimationFrame(loop);
     };
+    // every photograph is fetched and decoded ahead, one after the other, so changing entry is instant
+    const ready = new Map();
+    const preload = (src) => {
+      if (ready.has(src)) return ready.get(src);
+      const im = new Image(); im.decoding = "async"; im.src = src;
+      const p = (im.decode ? im.decode() : new Promise((ok) => { im.onload = ok; })).catch(() => {});
+      ready.set(src, p); return p;
+    };
+    const queue = links.map((a) => a.dataset.peek);
+    const next = () => { const s = queue.shift(); if (s) preload(s).then(() => setTimeout(next, 30)); };
+    (window.requestIdleCallback || ((f) => setTimeout(f, 200)))(next);
+    let ask = 0;
     const showOf = (a) => {
       if (current === a) return;
       current = a;
-      const w = +a.dataset.peekW || 4, h = +a.dataset.peekH || 5;
-      pic.width = 400; pic.height = Math.round(400 * h / w);
-      pic.src = a.dataset.peek;
-      pic.alt = "";
-      if (!reduceMotion) pic.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 260, easing: "ease-out" });
+      const w = +a.dataset.peekW || 4, h = +a.dataset.peekH || 5, src = a.dataset.peek, n = ++ask;
+      const put = () => {
+        if (n !== ask) return;                     // the pointer has already moved on: keep only the latest
+        pic.width = 400; pic.height = Math.round(400 * h / w);
+        pic.src = src; pic.alt = "";
+        if (!reduceMotion) pic.animate([{ opacity: 0.6 }, { opacity: 1 }], { duration: 140, easing: "ease-out" });
+      };
+      put();                                       // straight away (instant if ready); and again once decoded, if still wanted
+      preload(src).then(put);
     };
     // rest: the first entry, at the height of the list
     showOf(links[0]);
     y = ty = restY(); peek.style.setProperty("--y", y + "px");
     requestAnimationFrame(() => peek.classList.add("on"));
-    links.forEach((a) => {
-      a.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { showOf(a); aim(e.clientY); } });
-      a.addEventListener("pointermove", (e) => { if (current === a) aim(e.clientY); });
-      a.addEventListener("focus", () => { showOf(a); aim(a.getBoundingClientRect().top + 8); });
+    // follow the entry under the pointer on every move (fast moves skip enter events), and while the page scrolls under a still pointer
+    let px = -1, py = -1, inside = false, sraf = 0;
+    const under = () => { const el = inside && document.elementFromPoint(px, py); const a = el && el.closest && el.closest("[data-peek]"); if (a && list.contains(a)) { showOf(a); aim(py); } };
+    list.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      px = e.clientX; py = e.clientY; inside = true;
+      const a = e.target.closest && e.target.closest("[data-peek]");
+      if (a) { showOf(a); aim(e.clientY); }
     });
-    list.addEventListener("pointerleave", () => aim(null));
+    addEventListener("scroll", () => { if (inside && !sraf) sraf = requestAnimationFrame(() => { sraf = 0; under(); }); }, { passive: true });
+    links.forEach((a) => a.addEventListener("focus", () => { showOf(a); aim(a.getBoundingClientRect().top + 8); }));
+    list.addEventListener("pointerleave", () => { inside = false; aim(null); });
     addEventListener("resize", () => aim(null));
     // the first visible entry after a search or a change of order
     document.addEventListener("ac:rows", () => { const f = $$("[data-peek]").find((a) => !a.closest(".row").hidden); if (f) showOf(f); peek.classList.toggle("on", !!f); aim(null); });

@@ -14,7 +14,7 @@
     it: "Trascina per muoverti · scorri per andare più a fondo · clicca per leggere",
   };
   let DATA = [], items = [], built = false, raf = 0, running = false, last = 0, open = false, hovered = null;
-  let camZ = 0, panV = 0, driftReady = false;
+  let camZ = 0, panV = 0, driftReady = false, cruise = 54, leaveT = 0;
 
   function mulberry32(a) {
     return function () {
@@ -25,7 +25,9 @@
     };
   }
   // split at . ! ? only when a new sentence follows (so "www.helmutlang.com" or "S/S 2004." stay whole)
-  const sentences = (t) => (t.match(/.+?[.!?]+["”’)]*(?=\s+[A-Z“"‘(0-9]|\s*$)/g) || [t]).map((x) => x.trim()).filter(Boolean);
+  // …and initials stay with their name ("A.F. Vandevorst" is not the end of a sentence)
+  const sentences = (t) => (t.match(/.+?[.!?]+["”’)]*(?=\s+[A-Z“"‘(0-9]|\s*$)/g) || [t]).map((x) => x.trim()).filter(Boolean)
+    .reduce((out, s) => { if (out.length && /(^|[\s(“"‘.])[A-Z]\.$/.test(out[out.length - 1])) out[out.length - 1] += " " + s; else out.push(s); return out; }, []);
 
   function build() {
     stage.textContent = "";
@@ -39,7 +41,7 @@
       const all = [];
       a.paras.forEach((p, pi) => sentences(p).forEach((s) => all.push({ s, pi })));
       const good = all.filter((x) => x.s.length >= 24 && x.s.length <= 120 && /^[A-Z“"‘0-9]/.test(x.s));
-      const n = Math.min(6, good.length);
+      const n = Math.min(matchMedia("(max-width: 639px)").matches ? 3 : 4, good.length);
       for (let k = 0; k < n; k++) { const x = good[Math.floor((k + 0.5) * good.length / n)]; list.push({ kind: "phrase", a, s: x.s, pi: x.pi }); }
     }
     for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
@@ -65,43 +67,91 @@
     });
     items = list;
   }
+  // only what changed is written: fewer style updates per frame, a steadier drift
   const place = (it, x, y, sc, op, z, live) => {
-    const el = it.el;
+    const el = it.el, c = it.c || (it.c = {});
+    op = Math.max(0, Math.min(1, op));
+    if (op === 0 && c.op === 0) return;                    // still out of sight: nothing to redraw
     el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -50%) scale(${sc.toFixed(3)})`;
-    el.style.opacity = Math.max(0, Math.min(1, op)).toFixed(3);
-    el.style.zIndex = String(z);
-    el.style.pointerEvents = live ? "auto" : "none";
-    el.tabIndex = live && op > 0.6 ? 0 : -1;
+    const o = op.toFixed(3);
+    if (o !== c.o) { el.style.opacity = o; c.o = o; }
+    c.op = op;
+    if (z !== c.z) { el.style.zIndex = String(z); c.z = z; }
+    if (live !== c.live) { el.style.pointerEvents = live ? "auto" : "none"; c.live = live; }
+    const ti = live && op > 0.6 ? 0 : -1;
+    if (ti !== c.ti) { el.tabIndex = ti; c.ti = ti; }
   };
 
-  // drift: every photo and phrase sits at its own depth and passes from right to left; the near ones pass faster
-  function driftFrame(dt) {
-    const W = stage.clientWidth, H = stage.clientHeight, cx = W / 2, cy = H / 2, small = W < 640;
-    const photoBase = small ? 0.62 : 0.85, phraseBase = small ? 0.9 : 1.05, margin = small ? 160 : 260;
-    if (!driftReady) {
-      const rnd = mulberry32(7);
-      items.forEach((it) => {
-        const Z = it.kind === "phrase" ? 1 + rnd() * 0.9 : 1 + Math.pow(rnd(), 1.3) * 1.8;   // phrases stay near enough to read
-        it.g = { Z, X: ((rnd() * (W * 2.4 + 2 * margin)) - margin - cx) * Z, Y: (rnd() * 2 - 1) * H * 0.4 * Z };
-      });
-      driftReady = true;
+  // drift: photos and phrases travel in horizontal lanes, right to left. Each lane sits at its own depth (the near ones
+  // are bigger and pass faster) and near and far lanes alternate, so things never sit on top of each other.
+  // Inside a lane they keep their distance; at the edges of the screen they fade in and out instead of popping.
+  let layoutW = 0, layoutH = 0, panY = 0;
+  const LANE_Z = [1, 1.5, 1.12, 1.62, 1.25, 1.55];
+  function layout(W, H) {
+    const small = W < 640, rnd = mulberry32(7);
+    const top = 104, usable = Math.max(240, H - top - 100);
+    const n = Math.max(3, Math.min(small ? 6 : 5, Math.round(usable / (small ? 122 : 172))));
+    const laneH = usable / n;
+    const photoK = Math.min(small ? 0.62 : 0.85, (laneH * 1.15) / 260);   // a portrait in a near lane is a little taller than its lane
+    const phraseK = small ? 0.84 : 1;
+    const lanes = Array.from({ length: n }, (_, i) => ({ Z: LANE_Z[i % LANE_Z.length], y: top + (i + 0.5) * laneH, len: 0, list: [] }));
+    // photos and phrases are dealt out to the lanes separately, then woven together inside each lane,
+    // so phrases are spread evenly between the photos: never two phrases in a row, never a long run of photos
+    const photos = items.filter((it) => it.kind === "photo"), phrases = items.filter((it) => it.kind !== "photo");
+    photos.forEach((it, i) => lanes[i % n].list.push(it));
+    phrases.forEach((it, i) => lanes[(i + Math.floor(n / 2)) % n].ph = (lanes[(i + Math.floor(n / 2)) % n].ph || []).concat(it));
+    for (const lane of lanes) {
+      const ph = lane.ph || [], ps = lane.list, total = ps.length + ph.length, seq = [];
+      let pi = 0, qi = 0;
+      for (let k = 0; k < total; k++) {
+        // put the next phrase where its even share falls; photos fill the rest
+        const due = ph.length && qi < ph.length && Math.floor(((qi + 0.5) * total) / ph.length) <= k;
+        if ((due || pi >= ps.length) && qi < ph.length) seq.push(ph[qi++]); else seq.push(ps[pi++]);
+      }
+      lane.list = [];
+      for (const it of seq) {
+        // phrases keep the same size in every lane, so the far ones can still be read
+        const k = it.kind === "photo" ? photoK : phraseK * lane.Z;
+        const w = (it.kind === "photo" ? it.el.querySelector("img").width : it.el.offsetWidth) * k;
+        const h = (it.kind === "photo" ? it.el.querySelector("img").height : it.el.offsetHeight) * k;
+        const gap = (small ? 36 : 60) + rnd() * (small ? 110 : 150);
+        lane.list.push({ it, k, w, h, at: lane.len + w / 2 });
+        lane.len += w + gap;
+      }
     }
-    const span = W * 2.4 + 2 * margin;
+    for (const lane of lanes) {
+      const P = Math.max(lane.len, (W + 400) * (lane.Z + 1.5) + 400);   // long enough to never show the same thing twice
+      const start = rnd() * P;
+      for (const o of lane.list) {
+        const room = Math.max(0, laneH * (o.it.kind === "photo" ? 0.9 : 0.8) - o.h / lane.Z);   // small vertical play, inside the lane (screen px)
+        o.it.g = { Z: lane.Z, P, k: o.k, w: o.w, X: start + o.at - W, Y: (lane.y - H / 2 + (rnd() - 0.5) * room) * lane.Z };
+      }
+    }
+    layoutW = W; layoutH = H; panY = 0;
+  }
+  function driftFrame(dt) {
+    const W = stage.clientWidth, H = stage.clientHeight, cx = W / 2, cy = H / 2;
+    if (!driftReady || Math.abs(W - layoutW) > 120 || Math.abs(H - layoutH) > 220) { layout(W, H); driftReady = true; }
     if (!open) {
       if (!drag) panV *= Math.pow(0.08, dt);
-      const v = (hovered ? 6 : 34) + (drag ? 0 : panV);
+      // over a photo or a phrase everything around it slows down, gently (it never stops), and picks up again when you leave
+      const target = hovered ? 20 : 54;   // slower, never still
+      cruise += (target - cruise) * (1 - Math.exp(-dt / (hovered ? 0.24 : 0.55)));
+      const v = cruise + (drag ? 0 : panV);
       for (const it of items) it.g.X -= v * dt;
     }
     for (const it of items) {
       const g = it.g, d = g.Z - camZ;
       if (d < 0.2) { place(it, -9999, -9999, 0.01, 0, 0, false); continue; }
-      const s = 1 / d;
-      while (cx + g.X * s < -margin) g.X += span * d;
-      while (cx + g.X * s > span - margin) g.X -= span * d;
-      const x = cx + g.X * s, y = cy + g.Y * s;
+      const s = 1 / d, hw = (g.w * s) / 2;
+      // keep X inside one period, starting just past the left edge: whatever leaves on the left comes back far off on the right
+      const X0 = (-hw - 24 - cx) / s;
+      g.X = X0 + ((((g.X - X0) % g.P) + g.P) % g.P);
+      const x = cx + g.X * s, y = cy + (g.Y + panY) * s;
       const near = Math.max(0, Math.min(1, 1 - (d - 1) / 2));
-      const op = d < 0.5 ? (d - 0.2) / 0.3 : 0.4 + 0.6 * near;
-      place(it, x, y, s * (it.kind === "photo" ? photoBase : phraseBase), op, Math.round(near * 1000), s > 0.45 && x > -50 && x < W + 50);
+      const edge = Math.max(0, Math.min(1, Math.min(x + hw, W - (x - hw)) / 90));   // fade in from the right, out to the left
+      const op = (d < 0.5 ? (d - 0.2) / 0.3 : 0.45 + 0.55 * near) * edge;
+      place(it, x, y, s * g.k, op, Math.round(near * 1000), s > 0.45 && edge > 0.5);
     }
   }
 
@@ -112,16 +162,20 @@
   // hovering slows everything down, so it is easy to catch, and starts loading the sharp photo
   stage.addEventListener("pointerover", (e) => {
     const t = e.target.closest(".exp-item");
-    hovered = t && e.pointerType === "mouse" ? t : null;
+    if (t && e.pointerType === "mouse") { clearTimeout(leaveT); hovered = t; }
     if (t && t.classList.contains("photo")) fullOf(items.find((x) => x.el === t));
   });
-  stage.addEventListener("pointerout", (e) => { if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest(".exp-item")) hovered = null; });
+  stage.addEventListener("pointerout", (e) => {
+    if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".exp-item")) return;
+    clearTimeout(leaveT);
+    leaveT = setTimeout(() => { if (!stage.querySelector(".exp-item:hover")) hovered = null; }, 220);
+  });
   stage.addEventListener("focusin", (e) => { hovered = e.target.closest(".exp-item"); });
   stage.addEventListener("focusout", () => { hovered = null; });
 
   function frame(now) {
     const dt = Math.min(0.05, (now - (last || now)) / 1000) * (reduceMotion ? 0.25 : 1); last = now;
-    driftFrame(dt);
+    if (!open) driftFrame(dt);   // while a photo or phrase is open the archive behind it stands still: nothing to redraw under the blur
     if (running) raf = requestAnimationFrame(frame);
   }
   function start() { if (!built) build(); if (!running) { running = true; last = 0; raf = requestAnimationFrame(frame); } }
@@ -152,7 +206,8 @@
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y, now = performance.now(), dt = Math.max(1, now - drag.t) / 1000;
     moved += Math.abs(dx) + Math.abs(dy);
     // move the whole field: near things follow your finger, far ones lag behind
-    for (const it of items) { it.g.X += dx * (1 - camZ); it.g.Y = Math.max(-stage.clientHeight * 0.7 * it.g.Z, Math.min(stage.clientHeight * 0.7 * it.g.Z, it.g.Y + dy * (1 - camZ) * 0.5)); }
+    for (const it of items) it.g.X += dx * (1 - camZ);
+    panY = Math.max(-stage.clientHeight * 0.18, Math.min(stage.clientHeight * 0.18, panY + dy * (1 - camZ) * 0.4));
     panV = -(dx * (1 - camZ)) / dt * 0.5;
     drag.x = e.clientX; drag.y = e.clientY; drag.t = now;
   });
@@ -218,8 +273,8 @@
   async function openItem(it) {
     if (!it || busy || cur) return;
     busy = true; open = true; cur = it;
-    let sharpSrc = null;
-    if (it.kind === "photo") { const im = await Promise.race([fullOf(it), wait(1200)]); if (im) sharpSrc = im.src; }
+    let sharpSrc = null;   // never keep the click waiting: if the sharp photo isn't ready it slips in when it arrives
+    if (it.kind === "photo") { const im = await Promise.race([fullOf(it), wait(90)]); if (im) sharpSrc = im.src; }
     fill(it);
     ov.hidden = false; ov.classList.remove("shown"); group.classList.remove("tilted");
     ov.querySelector(".exp-scene").scrollTop = 0;
@@ -258,6 +313,7 @@
     await fly.animate(frames, { duration: reduceMotion ? 1 : 850 * DUR, easing: EASE, fill: "forwards" }).finished.catch(() => {});
     if (big) big.style.opacity = "";
     fly.remove();
+    stage.classList.add("blurred");
     ov.classList.add("shown");
     if (!reduceMotion) group.classList.add("tilted");
     busy = false;
@@ -268,6 +324,7 @@
     if (!cur || busy) return;
     busy = true;
     const it = cur;
+    stage.classList.remove("blurred");   // under the veil, the archive comes back into focus first, then forward
     ov.classList.remove("shown");
     group.classList.add("closing"); group.classList.remove("tilted");
     await wait(reduceMotion ? 0 : 380);

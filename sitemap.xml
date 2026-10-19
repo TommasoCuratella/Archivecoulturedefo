@@ -171,4 +171,43 @@
     <image:image><image:loc>https://archivecoulture.com/images/a-f-vandevorst-dreaming-arnhem-2011/04.webp</image:loc></image:image>
     <image:image><image:loc>https://archivecoulture.com/images/a-f-vandevorst-dreaming-arnhem-2011/05.webp</image:loc></image:image>
   </url>
+  <url>
+    <loc>https://archivecoulture.com/archive/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/01.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/02.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/03.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/04.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/05.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/06.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/07.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/08.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/09.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/10.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/11.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/designers/a-f-vandevorst</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-a-f-vandevorst/01.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-a-f-vandevorst/02.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-a-f-vandevorst/03.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-a-f-vandevorst/04.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/about</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/request</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
 </urlset>
