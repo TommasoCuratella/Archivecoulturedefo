@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Memories to approve — Archive Coulture</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #000; --ink: #fff; --muted: #6e6e6e; --line: rgba(255, 255, 255, .18); --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: var(--mono); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; padding: 18px 20px 80px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+  a, button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: none; }
+  a:hover, button:hover, a:focus-visible, button:focus-visible { color: var(--ink); }
+  header { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 48px; }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font: inherit; color: var(--ink); margin-bottom: 8px; }
+  .lead { color: var(--muted); margin-bottom: 30px; line-height: 2; text-transform: none; letter-spacing: .04em; font-size: 11px; }
+  .tabs { display: flex; gap: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .tabs button[aria-pressed="true"] { color: var(--ink); }
+  .list { list-style: none; }
+  .card { border-bottom: 1px solid var(--line); padding: 22px 0; }
+  .card p { font-size: 14px; line-height: 1.6; letter-spacing: .02em; text-transform: none; white-space: pre-line; overflow-wrap: anywhere; }
+  .card .meta { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; margin-top: 14px; color: var(--muted); }
+  .card .ok { color: var(--ink); border: 1px solid var(--ink); border-radius: 20px; padding: 7px 16px; }
+  .card .ok:hover { background: var(--ink); color: var(--bg); }
+  .card .no:hover, .card .no.armed { color: #ff6b6b; }
+  .card.gone { opacity: .25; pointer-events: none; transition: opacity .3s ease; }
+  .empty, .msg { color: var(--muted); padding: 30px 0; }
+  .signin { color: var(--ink); border: 1px solid var(--ink); border-radius: 22px; padding: 10px 20px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <a href="/memory">&larr; Send a memory</a>
+  <span class="who"></span>
+</header>
+<main>
+  <h1>Memories to approve</h1>
+  <p class="lead">Only you two can see this page. A memory reaches the wall only after you approve it. Deleting removes it for good.</p>
+  <p class="msg" id="msg"></p>
+  <button type="button" class="signin" id="signin" hidden>Sign in with Google</button>
+  <div id="panel" hidden>
+    <div class="tabs" role="group" aria-label="Show">
+      <button type="button" data-tab="pending" aria-pressed="true">Waiting <span class="n-pending"></span></button>
+      <button type="button" data-tab="approved" aria-pressed="false">On the wall <span class="n-approved"></span></button>
+    </div>
+    <ul class="list" id="list"></ul>
+  </div>
+</main>
+
+<script>
+(() => {
+  // the same two values as in index.html (MEMORY_DB)
+  const MEMORY_DB = { projectId: "archivecoulture", apiKey: "AIzaSyDCnAWup6HLJilcsHevi7MJpfmQIOaXmCQ" };
+  const LIVE = !!(MEMORY_DB.projectId && MEMORY_DB.apiKey);
+  const $ = (s) => document.querySelector(s);
+  const msg = $("#msg"), signin = $("#signin"), panel = $("#panel"), list = $("#list");
+  let tab = "pending", rows = [], token = null;
+  // preview: links point at the preview page
+  if (!LIVE && !/archivecoulture\.com$/.test(location.hostname)) $("header a").href = "./#/memory";
+
+  /* ---------- storage: Firestore (live) or this browser (demo) ---------- */
+  const store = LIVE ? {
+    base: `https://firestore.googleapis.com/v1/projects/${MEMORY_DB.projectId}/databases/(default)/documents`,
+    async call(url, opts) {
+      const res = await fetch(url, Object.assign({}, opts, { headers: { "Content-Type": "application/json", Authorization: "Bearer " + token } }));
+      if (!res.ok) throw new Error(await res.text());
+      return res.status === 204 ? null : res.json().catch(() => null);
+    },
+    async all() {
+      const q = { from: [{ collectionId: "memories" }], orderBy: [{ field: { fieldPath: "createdAt" }, direction: "DESCENDING" }], limit: 500 };
+      const out = await this.call(`${this.base}:runQuery`, { method: "POST", body: JSON.stringify({ structuredQuery: q }) });
+      return (out || []).filter((r) => r.document).map((r) => {
+        const f = r.document.fields || {};
+        return { id: r.document.name, text: (f.text && f.text.stringValue) || "", at: f.createdAt && f.createdAt.timestampValue, approved: !!(f.approved && f.approved.booleanValue) };
+      });
+    },
+    async approve(m, yes) {
+      const fields = { approved: { booleanValue: yes } };
+      if (yes) fields.approvedAt = { timestampValue: new Date().toISOString() };
+      const mask = yes ? "updateMask.fieldPaths=approved&updateMask.fieldPaths=approvedAt" : "updateMask.fieldPaths=approved";
+      await this.call(`https://firestore.googleapis.com/v1/${m.id}?${mask}`, { method: "PATCH", body: JSON.stringify({ fields }) });
+    },
+    async remove(m) { await this.call(`https://firestore.googleapis.com/v1/${m.id}`, { method: "DELETE" }); },
+  } : {
+    read(k) { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) { return []; } },
+    write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    async all() {
+      const pend = this.read("ac-memories-pending").map((m) => ({ ...m, approved: false }));
+      const ok = this.read("ac-memories").map((m, i) => (typeof m === "string" ? { id: "a" + i, text: m, approved: true } : { ...m, approved: true }));
+      return pend.reverse().concat(ok.reverse());
+    },
+    async approve(m, yes) {
+      const pend = this.read("ac-memories-pending"), ok = this.read("ac-memories").map((x, i) => (typeof x === "string" ? { id: "a" + i, text: x } : x));
+      if (yes) { this.write("ac-memories-pending", pend.filter((x) => x.id !== m.id)); ok.push({ id: m.id, text: m.text, at: m.at }); this.write("ac-memories", ok); }
+      else { this.write("ac-memories", ok.filter((x) => x.id !== m.id)); pend.push({ id: m.id, text: m.text, at: m.at }); this.write("ac-memories-pending", pend); }
+    },
+    async remove(m) {
+      this.write("ac-memories-pending", this.read("ac-memories-pending").filter((x) => x.id !== m.id));
+      this.write("ac-memories", this.read("ac-memories").map((x, i) => (typeof x === "string" ? { id: "a" + i, text: x } : x)).filter((x) => x.id !== m.id));
+    },
+  };
+
+  /* ---------- the list ---------- */
+  const fmt = (t) => { if (!t) return ""; const d = new Date(t); return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) + " · " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); };
+  function render() {
+    const pend = rows.filter((r) => !r.approved), ok = rows.filter((r) => r.approved);
+    $(".n-pending").textContent = "(" + pend.length + ")";
+    $(".n-approved").textContent = "(" + ok.length + ")";
+    const shown = tab === "pending" ? pend : ok;
+    list.textContent = "";
+    if (!shown.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = tab === "pending" ? "Nothing waiting." : "Nothing on the wall yet."; list.appendChild(li); return; }
+    for (const m of shown) {
+      const li = document.createElement("li"); li.className = "card";
+      const p = document.createElement("p"); p.textContent = m.text; li.appendChild(p);
+      const meta = document.createElement("div"); meta.className = "meta";
+      const when = document.createElement("span"); when.textContent = fmt(m.at); meta.appendChild(when);
+      const act = (label, cls, fn, sure) => { const b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = label; b.addEventListener("click", async () => {
+        // delete asks once more on the button itself (pop-up dialogs are blocked in some browsers)
+        if (sure && b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Sure? Delete for good"; b.classList.add("armed"); setTimeout(() => { b.dataset.armed = ""; b.textContent = label; b.classList.remove("armed"); }, 3500); return; }
+        li.classList.add("gone");
+        try { await fn(); rows = await store.all(); render(); } catch (e) { li.classList.remove("gone"); if (e.message !== "kept") msg.textContent = "Something went wrong. Try again."; }
+      }); meta.appendChild(b); };
+      if (!m.approved) act("Approve", "ok", () => store.approve(m, true));
+      else act("Take off the wall", "", () => store.approve(m, false));
+      act("Delete", "no", () => store.remove(m), true);
+      li.appendChild(meta);
+      list.appendChild(li);
+    }
+  }
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
+    tab = b.dataset.tab;
+    document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+  }));
+  async function show() {
+    try { rows = await store.all(); panel.hidden = false; msg.textContent = ""; render(); }
+    catch (e) { msg.textContent = "This account cannot read the memories. Sign in with one of your two addresses."; }
+  }
+
+  /* ---------- sign in (only your Google accounts can approve) ---------- */
+  if (!LIVE) {
+    show().then(() => { msg.textContent = "Preview: the database is not connected yet, so this shows the memories written in this browser."; });
+    return;
+  }
+  const add = (src) => new Promise((ok, ko) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); });
+  const V = "10.12.2";
+  add(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`).then(() => add(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`)).then(() => {
+    firebase.initializeApp({ apiKey: MEMORY_DB.apiKey, authDomain: MEMORY_DB.projectId + ".firebaseapp.com", projectId: MEMORY_DB.projectId });
+    const auth = firebase.auth();
+    signin.addEventListener("click", () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => { msg.textContent = "Sign-in did not work. Try again."; }));
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) { signin.hidden = false; panel.hidden = true; $(".who").textContent = ""; return; }
+      signin.hidden = true;
+      token = await user.getIdToken();
+      $(".who").innerHTML = "";
+      const out = document.createElement("button"); out.type = "button"; out.textContent = user.email + " · sign out"; out.addEventListener("click", () => auth.signOut());
+      $(".who").appendChild(out);
+      show();
+      setInterval(async () => { token = await user.getIdToken(); }, 30 * 60 * 1000);
+    });
+  }).catch(() => { msg.textContent = "Could not load the sign-in. Check the connection."; });
+})();
+</script>
+</body>
+</html>

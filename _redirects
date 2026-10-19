@@ -1,0 +1,22 @@
+# Each page is its own file; these rewrites serve them at clean addresses (same URLs as before).
+/archive                                                  /archive.html                                                  200
+/archive/helmut-lang-denim-jacket-1999                    /archive/helmut-lang-denim-jacket-1999.html                    200
+/archive/post-mortem-2026-curatella-tommaso               /archive/post-mortem-2026-curatella-tommaso.html               200
+/archive/helmut-lang-ads-1996-2004                        /archive/helmut-lang-ads-1996-2004.html                        200
+/archive/raf-simons-school-punk-aw-1997                   /archive/raf-simons-school-punk-aw-1997.html                   200
+/archive/carol-christian-poell-mainstream-downstream-ss-2004  /archive/carol-christian-poell-mainstream-downstream-ss-2004.html  200
+/archive/a-f-vandevorst-dreaming-ss-1999                  /archive/a-f-vandevorst-dreaming-ss-1999.html                  200
+/archive/a-f-vandevorst-dreaming-arnhem-2011              /archive/a-f-vandevorst-dreaming-arnhem-2011.html              200
+/explore                                                  /explore.html                                                  200
+/memory                                                   /memory.html                                                   200
+/memory-admin                                             /memory-admin.html                                             200
+/designers                                                /designers.html                                                200
+/designers/carol-christian-poell                          /designers/carol-christian-poell.html                          200
+/designers/hedi-slimane                                   /designers/hedi-slimane.html                                   200
+/designers/helmut-lang                                    /designers/helmut-lang.html                                    200
+/designers/tommaso-curatella                              /designers/tommaso-curatella.html                              200
+
+# old address of the Post Mortem article
+/archive/post-mortem2026-curatellatommaso                 /archive/post-mortem-2026-curatella-tommaso                    301
+
+# anything else: a real 404 page (Netlify serves /404.html with status 404)
