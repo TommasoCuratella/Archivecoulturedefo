@@ -176,14 +176,26 @@
   }
   buttons.forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); setOn(!want); }));
   label();
-  // the visitor asked for the pulse earlier: it comes back with the first touch or key (browsers need one)
+  // the visitor turned the sound on earlier: try to start it straight away (allowed when they arrived with a click on
+  // the site); if the browser still wants a gesture, start at the first click, tap or key, and keep trying until it plays
   if (want) {
-    const wake = (e) => {
-      if (e.target && e.target.closest && e.target.closest(".pulse")) return;
-      removeEventListener("pointerdown", wake, true); removeEventListener("keydown", wake, true);
-      if (want && !soundOn) setOn(true);
+    const evs = ["pointerdown", "pointerup", "click", "touchend", "keydown"];
+    const done = () => evs.forEach((ev) => removeEventListener(ev, wake, true));
+    const start = () => {
+      const a = initAudio();
+      if (!a) return done();
+      soundOn = true; apply();
+      if (a.ac.state === "running") return done();
+      const p = a.ac.resume();
+      if (p && p.then) p.then(() => { if (a.ac.state === "running") { done(); apply(); } }, () => {});
     };
-    addEventListener("pointerdown", wake, true); addEventListener("keydown", wake, true);
+    function wake(e) {
+      if (e.target && e.target.closest && e.target.closest(".pulse")) return;   // the switch itself decides
+      if (!want) return done();
+      start();
+    }
+    evs.forEach((ev) => addEventListener(ev, wake, true));
+    start();
   }
   document.addEventListener("visibilitychange", () => {
     if (!audio) return;
