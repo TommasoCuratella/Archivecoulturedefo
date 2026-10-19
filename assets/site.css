@@ -627,7 +627,7 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .forms input:focus-visible, .forms textarea:focus-visible { border-bottom-color: var(--ink); }
 .forms ::placeholder { color: var(--muted); opacity: .7; }
 .forms .fld-count { display: block; text-align: right; margin-top: 6px; color: var(--muted); }
-.forms .fld-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 28px; }
+.forms .fld-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 28px; align-items: end; }   /* labels of different length: the lines still sit on one level */
 .forms .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .forms .pill { position: relative; cursor: pointer; }
 .forms .pill input { position: absolute; opacity: 0; width: 1px; height: 1px; }
