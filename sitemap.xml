@@ -221,4 +221,14 @@
     <image:image><image:loc>https://archivecoulture.com/images/designer-raf-simons/04.webp</image:loc></image:image>
     <image:image><image:loc>https://archivecoulture.com/images/designer-raf-simons/05.webp</image:loc></image:image>
   </url>
+  <url>
+    <loc>https://archivecoulture.com/designers/martin-margiela</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-martin-margiela/01.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-martin-margiela/02.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-martin-margiela/03.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-martin-margiela/04.webp</image:loc></image:image>
+  </url>
 </urlset>
