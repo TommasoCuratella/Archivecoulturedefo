@@ -657,3 +657,14 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 /* archive: a quiet way to ask for what is missing */
 .propose-cta { margin-top: 28px; color: var(--muted); }
 .none a { color: var(--ink); }
+
+/* ---------- home: "enter the archive" (first visit in a session) ---------- */
+#gate { position: fixed; inset: 0; z-index: 60; background: var(--bg); color: var(--ink); display: grid; place-items: center; cursor: pointer; text-align: center; transition: opacity .9s ease, visibility .9s; }
+#gate[hidden] { display: none; }
+#gate.gone { opacity: 0; visibility: hidden; }
+#gate p { font-size: 11px; letter-spacing: .3em; text-indent: .3em; text-transform: uppercase; animation: gate-blink 1.6s steps(2, jump-none) infinite; }
+#gate small { display: block; margin-top: 10px; color: var(--muted); font-size: 10px; letter-spacing: .2em; text-indent: .2em; text-transform: uppercase; }
+#gate:focus { outline: none; }
+@keyframes gate-blink { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { #gate p { animation: none; } }
+.gated, .gated body { overflow: hidden; }
