@@ -259,7 +259,7 @@
       i = (k + slides.length) % slides.length;
       slides.forEach((sl, n) => { sl.classList.toggle("on", n === i); sl.setAttribute("aria-hidden", String(n !== i)); });
       if (cur) cur.textContent = String(i + 1).padStart(2, "0");
-      place(); last = performance.now();
+      retry(imgs[i]); place(); last = performance.now();
     };
     const setPaused = (p) => {
       paused = p; last = performance.now();
@@ -274,7 +274,10 @@
       setPaused(paused);
     }
     slides.forEach((sl, n) => sl.addEventListener("click", () => { if (n !== i) { go(n); setPaused(true); } else openLightbox(imgs, n); }));
-    imgs.forEach((im) => im.addEventListener("load", place));
+    // iPhone Safari never loads "lazy" photos that sit off-screen inside the moving track: load them all now,
+    // and if one fails, ask for it again when it comes into view
+    imgs.forEach((im) => { im.loading = "eager"; im.addEventListener("load", place); });
+    const retry = (im) => { if (im && im.complete && !im.naturalWidth && !im.dataset.retried) { im.dataset.retried = "1"; const s = im.src; im.src = ""; im.src = s; } };
     addEventListener("resize", place);
     let sx = null;
     show.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
