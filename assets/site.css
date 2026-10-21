@@ -668,3 +668,8 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 @keyframes gate-blink { 50% { opacity: .25; } }
 @media (prefers-reduced-motion: reduce) { #gate p { animation: none; } }
 .gated, .gated body { overflow: hidden; }
+
+/* biographies: standfirst, section headings, pull quote */
+.story .standfirst { font-size: calc(var(--fs-text) + 1.5px); line-height: 1.65; margin-bottom: 1.6em; }
+.story .sec-head { font: inherit; font-weight: 400; font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; color: var(--muted); margin: 2.6em 0 1em; }
+.story .pull { margin: 2.2em 0; padding: 0 8%; text-align: center; font-size: calc(var(--fs-text) + 2px); line-height: 1.6; }
