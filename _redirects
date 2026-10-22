@@ -7,7 +7,11 @@
 /archive/carol-christian-poell-mainstream-downstream-ss-2004  /archive/carol-christian-poell-mainstream-downstream-ss-2004.html  200
 /archive/a-f-vandevorst-dreaming-ss-1999                  /archive/a-f-vandevorst-dreaming-ss-1999.html                  200
 /archive/a-f-vandevorst-dreaming-arnhem-2011              /archive/a-f-vandevorst-dreaming-arnhem-2011.html              200
-/archive/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013 /archive/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013.html 200
+/archive/daft-punk-hedi-slimane-dior-saint-laurent-2005-2014 /archive/daft-punk-hedi-slimane-dior-saint-laurent-2005-2014.html 200
+# old address of the Daft Punk article (dates corrected to 2005-2014): permanent redirect
+/archive/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013        /archive/daft-punk-hedi-slimane-dior-saint-laurent-2005-2014  301!
+/archive/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013.html   /archive/daft-punk-hedi-slimane-dior-saint-laurent-2005-2014  301!
+/images/daft-punk-hedi-slimane-dior-saint-laurent-2006-2013/*       /images/daft-punk-hedi-slimane-dior-saint-laurent-2005-2014/:splat  301!
 /about                                                     /about.html                                                     200
 /thank-you                                                 /thank-you.html                                                 200
 /request                                                   /request.html                                                   200
