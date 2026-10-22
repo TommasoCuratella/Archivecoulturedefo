@@ -249,6 +249,14 @@ button:active, .back:active { transform: scale(.97); }
   .track { gap: 14px; }
   .slide img { max-width: 78vw; max-height: 58vh; }
   .slideshow .art-body { margin-top: 48px; }
+  /* phone: the strip scrolls natively instead of being moved with transform (iPhone Safari left photos blank) */
+  .show:not(.single) .track {
+    position: relative; width: auto; transform: none !important; transition: none; will-change: auto;
+    overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .show:not(.single) .track::-webkit-scrollbar { display: none; }
+  .show:not(.single) .track::before, .show:not(.single) .track::after { content: ""; flex: none; width: 40vw; }
+  .show:not(.single) .slide { scroll-snap-align: center; }
 }
 
 /* designer timeline: one thin line, dots on equal steps; a dot opens its details */
