@@ -251,17 +251,11 @@
     const cur = $(".cur", show), playBtn = $(".play", show);
     const SLIDE_MS = 4500;
     let i = 0, last = performance.now(), paused = reduceMotion;
-    // on phones the strip scrolls natively (see site.css); on larger screens it is moved with transform
+    // on phones only the current photo is shown (see site.css); on larger screens the strip moves with transform
     const phone = matchMedia("(max-width: 759px)");
-    const native = () => phone.matches && !single;
-    let quiet = 0;
-    const place = (smooth) => {
+    const place = () => {
+      if (phone.matches) { track.style.transform = ""; return; }
       const sl = slides[i];
-      if (native()) {
-        quiet = performance.now() + 900;
-        track.scrollTo({ left: Math.max(0, sl.offsetLeft + sl.offsetWidth / 2 - track.clientWidth / 2), behavior: smooth && !reduceMotion ? "smooth" : "auto" });
-        return;
-      }
       track.style.transform = "translateX(" + Math.round(show.clientWidth / 2 - (sl.offsetLeft + sl.offsetWidth / 2)) + "px)";
     };
     const mark = () => {
@@ -270,20 +264,8 @@
     };
     const go = (k) => {
       i = (k + slides.length) % slides.length;
-      mark(); retry(imgs[i]); place(true); last = performance.now();
+      mark(); retry(imgs[i]); place(); last = performance.now();
     };
-    // phone: after a swipe, the photo nearest the centre becomes the current one
-    let st = 0;
-    track.addEventListener("scroll", () => {
-      if (!native()) return;
-      clearTimeout(st);
-      st = setTimeout(() => {
-        const mid = track.scrollLeft + track.clientWidth / 2;
-        let best = i, d = Infinity;
-        slides.forEach((sl, n) => { const e = Math.abs(sl.offsetLeft + sl.offsetWidth / 2 - mid); if (e < d) { d = e; best = n; } });
-        if (best !== i) { i = best; mark(); retry(imgs[i]); last = performance.now(); if (performance.now() > quiet) setPaused(true); }
-      }, 120);
-    }, { passive: true });
     const setPaused = (p) => {
       paused = p; last = performance.now();
       if (!playBtn) return;
@@ -299,13 +281,13 @@
     slides.forEach((sl, n) => sl.addEventListener("click", () => { if (n !== i) { go(n); setPaused(true); } else openLightbox(imgs, n); }));
     // iPhone Safari never loads "lazy" photos that sit off-screen inside the moving track: load them all now,
     // and if one fails, ask for it again when it comes into view
-    imgs.forEach((im) => { im.loading = "eager"; im.decoding = "sync"; im.addEventListener("load", () => place(false)); });
+    imgs.forEach((im) => { im.loading = "eager"; im.addEventListener("load", place); });
     const retry = (im) => { if (im && im.complete && !im.naturalWidth && !im.dataset.retried) { im.dataset.retried = "1"; const s = im.src; im.src = ""; im.src = s; } };
-    addEventListener("resize", () => place(false));
+    addEventListener("resize", place);
     let sx = null;
     show.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
     show.addEventListener("touchend", (e) => {
-      if (sx === null || native()) { sx = null; return; }
+      if (sx === null) return;
       const dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 40) { go(i + (dx < 0 ? 1 : -1)); setPaused(true); }
     });
@@ -320,7 +302,7 @@
       go(Number(a.dataset.slide) - 1); setPaused(true);
       scrollTo({ top: Math.max(0, show.getBoundingClientRect().top + scrollY - 20), behavior: reduceMotion ? "auto" : "smooth" });
     }));
-    i = 0; mark(); place(false); last = performance.now();
+    go(0);
     if (!single) setInterval(() => {
       if (paused || document.hidden || (lb && !lb.hidden)) { last = performance.now(); return; }
       const r = show.getBoundingClientRect();
