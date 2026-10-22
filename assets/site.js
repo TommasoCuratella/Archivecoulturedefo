@@ -251,15 +251,20 @@
     const cur = $(".cur", show), playBtn = $(".play", show);
     const SLIDE_MS = 4500;
     let i = 0, last = performance.now(), paused = reduceMotion;
+    // on phones only the current photo is shown (see site.css); on larger screens the strip moves with transform
+    const phone = matchMedia("(max-width: 759px)");
     const place = () => {
+      if (phone.matches) { track.style.transform = ""; return; }
       const sl = slides[i];
       track.style.transform = "translateX(" + Math.round(show.clientWidth / 2 - (sl.offsetLeft + sl.offsetWidth / 2)) + "px)";
     };
-    const go = (k) => {
-      i = (k + slides.length) % slides.length;
+    const mark = () => {
       slides.forEach((sl, n) => { sl.classList.toggle("on", n === i); sl.setAttribute("aria-hidden", String(n !== i)); });
       if (cur) cur.textContent = String(i + 1).padStart(2, "0");
-      retry(imgs[i]); place(); last = performance.now();
+    };
+    const go = (k) => {
+      i = (k + slides.length) % slides.length;
+      mark(); retry(imgs[i]); place(); last = performance.now();
     };
     const setPaused = (p) => {
       paused = p; last = performance.now();

@@ -249,6 +249,10 @@ button:active, .back:active { transform: scale(.97); }
   .track { gap: 14px; }
   .slide img { max-width: 78vw; max-height: 58vh; }
   .slideshow .art-body { margin-top: 48px; }
+  /* phone: one photo at a time, in normal flow, no moving strip (iPhone Safari left photos blank inside it) */
+  .show:not(.single) .track { width: auto; height: 58vh; justify-content: center; transform: none !important; transition: none; will-change: auto; }
+  .show:not(.single) .slide { display: none; opacity: 1; }
+  .show:not(.single) .slide.on { display: flex; }
 }
 
 /* designer timeline: one thin line, dots on equal steps; a dot opens its details */
