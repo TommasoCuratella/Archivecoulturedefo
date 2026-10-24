@@ -410,43 +410,55 @@
     else if (q0) { input.value = q0; filter(); loadFull().then(filter); }
   }
 
-  /* ---------- runways, one show: a look opens large; its close-up sits under it and opens large too ---------- */
+  /* ---------- runways, one show: a look opens large with its close-ups under it (they open large too);
+     "Run the show" plays every photo in order, 1, 1.1, 2, 2.1 … ---------- */
   const looksEl = $("[data-looks]"), lv = $(".look-view");
   if (looksEl && lv) {
     const btns = $$(".look-open", looksEl), big = $(".lv-big", lv), pair = $(".lv-pair", lv);
-    const [tFull, tDet] = $$(".lv-thumb", lv), cnt = $(".lv-count", lv);
-    const prev = $(".lv-prev", lv), next = $(".lv-next", lv), close = $(".lv-close", lv);
-    let k = 0, part = "full", opener = null;
+    const cnt = $(".lv-count", lv), prev = $(".lv-prev", lv), next = $(".lv-next", lv), close = $(".lv-close", lv), play = $(".lv-play", lv);
+    const looks = btns.map((b) => [b.dataset.full].concat(b.dataset.details ? b.dataset.details.split("|") : []));
+    const seq = []; looks.forEach((l, i) => l.forEach((_, j) => seq.push([i, j])));   // every photo, in order
+    const SHOW_MS = 2600;
+    let k = 0, part = 0, opener = null, timer = 0;
+    const PLAY = '<span data-l="en">Run the show</span><span data-l="it" lang="it">Fai sfilare</span>';
+    const PAUSE = '<span data-l="en">Pause</span><span data-l="it" lang="it">Pausa</span>';
     const show = () => {
-      const b = btns[k], det = b.dataset.detail;
-      if (part === "detail" && !det) part = "full";
-      big.src = part === "detail" ? det : b.dataset.full;
-      big.alt = $("img", b).alt + (part === "detail" ? " — close-up" : "");
-      pair.hidden = !det;
-      if (det) {
-        $("img", tFull).src = b.dataset.full; $("img", tDet).src = det;
-        tFull.setAttribute("aria-pressed", String(part === "full")); tDet.setAttribute("aria-pressed", String(part === "detail"));
-      }
-      cnt.textContent = String(k + 1).padStart(2, "0") + " / " + String(btns.length).padStart(2, "0");
-      prev.hidden = next.hidden = btns.length < 2;
-      lv.classList.toggle("is-detail", part === "detail");
+      const l = looks[k]; part = Math.min(part, l.length - 1);
+      big.src = l[part];
+      big.alt = $("img", btns[k]).alt + (part ? " — close-up" : "");
+      // the photos of this look, under the big one: the full look, then its close-ups
+      if (l.length > 1) {
+        pair.innerHTML = l.map((src, j) => `<button type="button" class="lv-thumb" data-j="${j}" aria-pressed="${j === part}" aria-label="${j ? "Close-up " + j : "Full look"}"><img src="${src}" alt=""></button>`).join("");
+        pair.hidden = false;
+      } else { pair.innerHTML = ""; pair.hidden = true; }
+      cnt.textContent = String(k + 1).padStart(2, "0") + " / " + String(looks.length).padStart(2, "0");
+      prev.hidden = next.hidden = looks.length < 2;
     };
-    const open = (i) => {
-      k = i; part = "full"; opener = document.activeElement; show();
+    const stop = () => { clearInterval(timer); timer = 0; play.innerHTML = PLAY; play.setAttribute("aria-pressed", "false"); };
+    const advance = () => {
+      let at = seq.findIndex(([i, j]) => i === k && j === part);
+      if (at >= seq.length - 1) { stop(); return; }   // the show ends on the last photo
+      [k, part] = seq[at + 1]; show();
+    };
+    const start = () => { clearInterval(timer); timer = setInterval(advance, SHOW_MS); play.innerHTML = PAUSE; play.setAttribute("aria-pressed", "true"); };
+    const open = (i, run) => {
+      k = i; part = 0; opener = document.activeElement; show();
       lv.classList.add("fade"); lv.hidden = false; document.body.style.overflow = "hidden";
       close.focus({ preventScroll: true });
       requestAnimationFrame(() => lv.classList.remove("fade"));
+      if (run && !reduceMotion) start(); else stop();
     };
     const shut = () => {
-      lv.classList.add("fade");
+      stop(); lv.classList.add("fade");
       setTimeout(() => { lv.hidden = true; lv.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
     };
-    const step = (d) => { k = (k + d + btns.length) % btns.length; part = "full"; show(); };
-    btns.forEach((b, i) => b.addEventListener("click", () => open(i)));
-    tFull.addEventListener("click", () => { part = "full"; show(); });
-    tDet.addEventListener("click", () => { part = "detail"; show(); });
-    // clicking the big photo switches between the look and its close-up
-    big.addEventListener("click", () => { if (btns[k].dataset.detail) { part = part === "full" ? "detail" : "full"; show(); } else step(1); });
+    const step = (d) => { stop(); k = (k + d + looks.length) % looks.length; part = 0; show(); };
+    btns.forEach((b, i) => b.addEventListener("click", () => open(i, false)));
+    $$("[data-run]").forEach((b) => b.addEventListener("click", () => open(0, true)));
+    play.addEventListener("click", () => (timer ? stop() : start()));
+    pair.addEventListener("click", (e) => { const t = e.target.closest(".lv-thumb"); if (t) { stop(); part = Number(t.dataset.j); show(); } });
+    // clicking the big photo goes on to the next one: the close-ups of the look, then the next look
+    big.addEventListener("click", () => { stop(); if (part < looks[k].length - 1) { part++; show(); } else step(1); });
     prev.addEventListener("click", () => step(-1));
     next.addEventListener("click", () => step(1));
     close.addEventListener("click", shut);
@@ -456,8 +468,9 @@
       if (e.key === "Escape") shut();
       else if (e.key === "ArrowRight") step(1);
       else if (e.key === "ArrowLeft") step(-1);
-      else if (e.key === "ArrowDown" && btns[k].dataset.detail) { part = "detail"; show(); }
-      else if (e.key === "ArrowUp") { part = "full"; show(); }
+      else if (e.key === "ArrowDown") { stop(); part = Math.min(part + 1, looks[k].length - 1); show(); }
+      else if (e.key === "ArrowUp") { stop(); part = Math.max(part - 1, 0); show(); }
+      else if (e.key === " ") { timer ? stop() : start(); }
       else return;
       e.preventDefault();
     });
@@ -466,7 +479,13 @@
     lv.addEventListener("touchend", (e) => {
       if (sx === null) return;
       const dx = e.changedTouches[0].clientX - sx; sx = null;
-      if (Math.abs(dx) > 40 && btns.length > 1) step(dx < 0 ? 1 : -1);
+      if (Math.abs(dx) > 40 && looks.length > 1) step(dx < 0 ? 1 : -1);
+    });
+    // the next photos are fetched ahead while the show runs, so they never arrive late
+    const warm = new Set();
+    big.addEventListener("load", () => {
+      const at = seq.findIndex(([i, j]) => i === k && j === part);
+      seq.slice(at + 1, at + 4).forEach(([i, j]) => { const u = looks[i][j]; if (!warm.has(u)) { warm.add(u); const im = new Image(); im.src = u; } });
     });
   }
 

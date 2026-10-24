@@ -733,3 +733,18 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
   .look-view { padding: 52px 12px 64px; }
   .lv-prev, .lv-next { top: auto; bottom: 6px; transform: none; }
 }
+
+/* runways, one show: "Run the show", and the facts under the looks */
+.show-play { margin: -18px 0 32px; }
+.run-show { color: var(--ink); padding: 4px 0; letter-spacing: inherit; }
+@media (hover: hover) { .run-show:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.show-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 28px; margin-top: 64px; max-width: 640px; }
+.show-facts dt { color: var(--muted); }
+.show-facts dd { margin: 0; color: var(--ink); }
+.show-facts .xref { color: var(--ink); }
+.lv-play { bottom: 6px; left: calc(var(--gut) - 18px); }
+.lv-play[aria-pressed="true"] { color: var(--ink); }
+@media (max-width: 759px) {
+  .lv-play { bottom: auto; top: 4px; left: calc(var(--gut) - 18px); }
+  .show-facts { margin-top: 48px; gap: 6px 18px; }
+}
