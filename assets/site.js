@@ -346,7 +346,8 @@
       for (const r of rows) {
         // from a designer's page: only that designer's own articles (by their credits), not every text that names them
         const byDesigner = onlyDesigner && norm(input.value).trim() === onlyDesigner;
-        const ok = (cat === "all" || r.li.dataset.cat === cat) && (byDesigner ? norm(r.li.dataset.designer) === onlyDesigner : words.every((w) => r.text.includes(w)));
+        const inCat = cat === "all" || r.li.dataset.cat === cat || (cat === "runway" && r.li.dataset.sub === "runway");
+        const ok = inCat && (byDesigner ? norm(r.li.dataset.designer) === onlyDesigner : words.every((w) => r.text.includes(w)));
         r.li.hidden = !ok; if (ok) shown++;
       }
       none.hidden = shown > 0;
@@ -370,15 +371,24 @@
     input.addEventListener("input", () => { filter(); loadFull().then(filter); });
     input.addEventListener("keydown", (e) => { if (e.key === "Escape") { input.value = ""; filter(); } });
     $$("[data-sort]").forEach((b) => b.addEventListener("click", () => sort(b.dataset.sort)));
-    // categories stay folded away: they appear only when "Category" is clicked
+    // categories stay folded away: they appear only when "Category" is clicked.
+    // First level: All / Fashion / Art / Designers → / Photographers →. Fashion opens its own line (All / Fashion / Runways);
+    // All brings the first level back; Runways adds "Filter by brand →" (the brand index)
     const catBtns = $$("button[data-cat]"), catToggle = $(".seg-toggle"), catOpts = $("#cats"), catCur = $(".seg-cur");
+    const lvRoot = $('.cat-lv[data-lv="root"]'), lvFashion = $('.cat-lv[data-lv="fashion"]'), catBrand = $(".cat-brand");
+    const inFashion = () => cat === "fashion" || cat === "runway";
+    const setLevel = () => {
+      if (lvRoot && lvFashion) { lvRoot.hidden = inFashion(); lvFashion.hidden = !inFashion(); }
+      if (catBrand) catBrand.hidden = cat !== "runway";
+      catBtns.forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.cat === cat)));
+    };
     const setCats = (open) => {
       if (!catToggle) return;
       catToggle.setAttribute("aria-expanded", String(open));
       catOpts.hidden = !open;
-      const on = catBtns.find((x) => x.getAttribute("aria-pressed") === "true");
       catCur.hidden = open || cat === "all";
-      if (on) catCur.innerHTML = on.innerHTML;
+      const on = catBtns.find((x) => x.dataset.cat === cat);
+      if (on) catCur.innerHTML = cat === "runway" ? catBtns.find((x) => x.dataset.cat === "fashion").innerHTML + " / " + on.innerHTML : on.innerHTML;
     };
     if (catToggle) {
       catToggle.addEventListener("click", () => setCats(catOpts.hidden));
@@ -386,9 +396,10 @@
     }
     catBtns.forEach((b) => b.addEventListener("click", () => {
       cat = b.dataset.cat;
-      catBtns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      filter();
-      setCats(false);
+      setLevel(); filter();
+      // Fashion and Runways keep the menu open (their own line, and the brand index link), and so does All on the
+      // Fashion line (it brings the first line back); the others close it
+      if (!inFashion() && !b.closest('[data-lv="fashion"]')) setCats(false);
     }));
     document.addEventListener("ac:lang", filter);
     // arriving from a designer's page (archive?designer=Hedi+Slimane): the name is in the search bar and the list shows
@@ -397,6 +408,90 @@
     try { const sp = new URLSearchParams(location.search); q0 = sp.get("q") || ""; d0 = sp.get("designer") || ""; } catch (e) {}
     if (d0) { input.value = d0; onlyDesigner = norm(d0).trim(); filter(); }
     else if (q0) { input.value = q0; filter(); loadFull().then(filter); }
+  }
+
+  /* ---------- runways, one show: a look opens large; its close-up sits under it and opens large too ---------- */
+  const looksEl = $("[data-looks]"), lv = $(".look-view");
+  if (looksEl && lv) {
+    const btns = $$(".look-open", looksEl), big = $(".lv-big", lv), pair = $(".lv-pair", lv);
+    const [tFull, tDet] = $$(".lv-thumb", lv), cnt = $(".lv-count", lv);
+    const prev = $(".lv-prev", lv), next = $(".lv-next", lv), close = $(".lv-close", lv);
+    let k = 0, part = "full", opener = null;
+    const show = () => {
+      const b = btns[k], det = b.dataset.detail;
+      if (part === "detail" && !det) part = "full";
+      big.src = part === "detail" ? det : b.dataset.full;
+      big.alt = $("img", b).alt + (part === "detail" ? " — close-up" : "");
+      pair.hidden = !det;
+      if (det) {
+        $("img", tFull).src = b.dataset.full; $("img", tDet).src = det;
+        tFull.setAttribute("aria-pressed", String(part === "full")); tDet.setAttribute("aria-pressed", String(part === "detail"));
+      }
+      cnt.textContent = String(k + 1).padStart(2, "0") + " / " + String(btns.length).padStart(2, "0");
+      prev.hidden = next.hidden = btns.length < 2;
+      lv.classList.toggle("is-detail", part === "detail");
+    };
+    const open = (i) => {
+      k = i; part = "full"; opener = document.activeElement; show();
+      lv.classList.add("fade"); lv.hidden = false; document.body.style.overflow = "hidden";
+      close.focus({ preventScroll: true });
+      requestAnimationFrame(() => lv.classList.remove("fade"));
+    };
+    const shut = () => {
+      lv.classList.add("fade");
+      setTimeout(() => { lv.hidden = true; lv.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
+    };
+    const step = (d) => { k = (k + d + btns.length) % btns.length; part = "full"; show(); };
+    btns.forEach((b, i) => b.addEventListener("click", () => open(i)));
+    tFull.addEventListener("click", () => { part = "full"; show(); });
+    tDet.addEventListener("click", () => { part = "detail"; show(); });
+    // clicking the big photo switches between the look and its close-up
+    big.addEventListener("click", () => { if (btns[k].dataset.detail) { part = part === "full" ? "detail" : "full"; show(); } else step(1); });
+    prev.addEventListener("click", () => step(-1));
+    next.addEventListener("click", () => step(1));
+    close.addEventListener("click", shut);
+    lv.addEventListener("click", (e) => { if (e.target === lv || e.target.classList.contains("lv-stage")) shut(); });
+    window.addEventListener("keydown", (e) => {
+      if (lv.hidden) return;
+      if (e.key === "Escape") shut();
+      else if (e.key === "ArrowRight") step(1);
+      else if (e.key === "ArrowLeft") step(-1);
+      else if (e.key === "ArrowDown" && btns[k].dataset.detail) { part = "detail"; show(); }
+      else if (e.key === "ArrowUp") { part = "full"; show(); }
+      else return;
+      e.preventDefault();
+    });
+    let sx = null;
+    lv.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    lv.addEventListener("touchend", (e) => {
+      if (sx === null) return;
+      const dx = e.changedTouches[0].clientX - sx; sx = null;
+      if (Math.abs(dx) > 40 && btns.length > 1) step(dx < 0 ? 1 : -1);
+    });
+  }
+
+  /* ---------- runways, one brand: filter the shows by designer, season and year ---------- */
+  const rwList = $("[data-runways]");
+  if (rwList) {
+    const rws = $$(".row", rwList), sel = { designer: "", season: "", year: "" };
+    const none = $(".none"), countEl = $(".count");
+    const apply = () => {
+      let shown = 0;
+      for (const li of rws) {
+        const ok = (!sel.designer || li.dataset.designer === sel.designer) && (!sel.season || li.dataset.season === sel.season) && (!sel.year || li.dataset.year === sel.year);
+        li.hidden = !ok; if (ok) shown++;
+      }
+      none.hidden = shown > 0;
+      const any = sel.designer || sel.season || sel.year;
+      countEl.textContent = any ? (lang() === "it" ? `${shown} di ${rws.length}` : `${shown} of ${rws.length}`) : "";
+      document.dispatchEvent(new Event("ac:rows"));
+    };
+    $$("button[data-f]").forEach((b) => b.addEventListener("click", () => {
+      sel[b.dataset.f] = b.dataset.v;
+      $$(`button[data-f="${b.dataset.f}"]`).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      apply();
+    }));
+    document.addEventListener("ac:lang", apply);
   }
 
   /* ---------- indexes: the photograph of the entry in focus sits on the right.
