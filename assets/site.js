@@ -153,6 +153,69 @@
     ev.preventDefault(); openClip(a);
   });
 
+  // a film from a link (Tapes, a runway's "Video of the runway"): it opens large and clean, like the films in the articles —
+  // Close, the sound, and a hairline under the film that shows where you are (click it to jump); a click on the film pauses it.
+  // Under it, a way on to the article or the show (data-page); the link itself still leads to the file
+  function openLongFilm(a) {
+    const box = document.createElement("div");
+    box.className = "film film-long fade";
+    box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-label", a.getAttribute("aria-label") || "Film");
+    const pg = a.dataset.page && a.dataset.page !== location.pathname ? a.dataset.page : "";
+    box.innerHTML = '<div class="fl-wrap"><video playsinline preload="auto"></video>'
+      + '<div class="fl-bar" role="slider" aria-label="Position" tabindex="0"><span class="fl-fill"></span></div>'
+      + '<div class="fl-row"><span class="fl-time">0:00</span>'
+      + (pg ? '<a class="fl-page" href="' + pg + '">' + (a.dataset.pageLabel || "") + ' &rarr;</a>' : "") + '</div></div>'
+      + '<button type="button" class="film-close"><span data-l="en">Close</span><span data-l="it" lang="it">Chiudi</span></button>'
+      + '<button type="button" class="vid-sound film-sound" aria-pressed="true">' + SOUND(true) + '</button>';
+    const v = $("video", box), cls = $(".film-close", box), snd = $(".film-sound", box);
+    const bar = $(".fl-bar", box), fill = $(".fl-fill", box), time = $(".fl-time", box);
+    if (a.dataset.poster) v.poster = a.dataset.poster;
+    v.src = a.getAttribute("href");
+    document.body.appendChild(box);
+    document.body.style.overflow = "hidden";
+    v.muted = false;
+    v.play().catch(() => { v.muted = true; snd.setAttribute("aria-pressed", "false"); snd.innerHTML = SOUND(false); v.play().catch(() => {}); });
+    requestAnimationFrame(() => box.classList.remove("fade"));
+    cls.focus({ preventScroll: true });
+    // the film as large as the screen allows, whatever its shape (old 4:3 tapes, 16:9, portrait)
+    const wrap = $(".fl-wrap", box);
+    const fit = () => {
+      if (!v.videoWidth) return;
+      const small = innerWidth < 760, maxW = innerWidth - (small ? 0 : 140), maxH = innerHeight - (small ? 190 : 170);
+      wrap.style.width = Math.round(Math.min(maxW, maxH * v.videoWidth / v.videoHeight)) + "px";
+    };
+    v.addEventListener("loadedmetadata", fit);
+    addEventListener("resize", fit);
+    const mmss = (t) => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+    v.addEventListener("timeupdate", () => {
+      if (!v.duration) return;
+      fill.style.transform = "scaleX(" + (v.currentTime / v.duration).toFixed(4) + ")";
+      time.textContent = mmss(v.currentTime) + " / " + mmss(v.duration);
+    });
+    bar.addEventListener("click", (e) => { const r = bar.getBoundingClientRect(); if (v.duration) v.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * v.duration; });
+    bar.addEventListener("keydown", (e) => { if (!v.duration) return; if (e.key === "ArrowRight") v.currentTime += 10; else if (e.key === "ArrowLeft") v.currentTime -= 10; else return; e.preventDefault(); });
+    v.addEventListener("click", () => (v.paused ? v.play() : v.pause()));
+    snd.addEventListener("click", () => { v.muted = !v.muted; snd.setAttribute("aria-pressed", String(!v.muted)); snd.innerHTML = SOUND(!v.muted); });
+    const shut = () => {
+      box.classList.add("fade");
+      removeEventListener("keydown", key, true);
+      removeEventListener("resize", fit);
+      setTimeout(() => { v.pause(); v.removeAttribute("src"); v.load(); box.remove(); document.body.style.overflow = ""; a.focus({ preventScroll: true }); }, 220);
+    };
+    const key = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); shut(); }
+      else if (e.key === " " && e.target === document.body || e.key === " " && box.contains(e.target) && e.target.tagName !== "BUTTON") { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+    };
+    addEventListener("keydown", key, true);
+    box.addEventListener("click", (e) => { if (e.target === box || cls.contains(e.target)) shut(); });
+  }
+  document.addEventListener("click", (ev) => {
+    const a = ev.target.closest && ev.target.closest("a[data-film]");
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    ev.preventDefault(); openLongFilm(a);
+  });
+
   function openFilm(small) {
     const box = document.createElement("div");
     box.className = "film fade";
@@ -346,7 +409,8 @@
       for (const r of rows) {
         // from a designer's page: only that designer's own articles (by their credits), not every text that names them
         const byDesigner = onlyDesigner && norm(input.value).trim() === onlyDesigner;
-        const ok = (cat === "all" || r.li.dataset.cat === cat) && (byDesigner ? norm(r.li.dataset.designer) === onlyDesigner : words.every((w) => r.text.includes(w)));
+        const inCat = cat === "all" || r.li.dataset.cat === cat || (cat === "runway" && r.li.dataset.sub === "runway");
+        const ok = inCat && (byDesigner ? norm(r.li.dataset.designer) === onlyDesigner : words.every((w) => r.text.includes(w)));
         r.li.hidden = !ok; if (ok) shown++;
       }
       none.hidden = shown > 0;
@@ -370,15 +434,24 @@
     input.addEventListener("input", () => { filter(); loadFull().then(filter); });
     input.addEventListener("keydown", (e) => { if (e.key === "Escape") { input.value = ""; filter(); } });
     $$("[data-sort]").forEach((b) => b.addEventListener("click", () => sort(b.dataset.sort)));
-    // categories stay folded away: they appear only when "Category" is clicked
+    // categories stay folded away: they appear only when "Category" is clicked.
+    // First level: All / Fashion / Art / Designers → / Photographers →. Fashion opens its own line (All / Fashion / Runways);
+    // All brings the first level back; Runways adds "Filter by brand →" (the brand index)
     const catBtns = $$("button[data-cat]"), catToggle = $(".seg-toggle"), catOpts = $("#cats"), catCur = $(".seg-cur");
+    const lvRoot = $('.cat-lv[data-lv="root"]'), lvFashion = $('.cat-lv[data-lv="fashion"]'), catBrand = $(".cat-brand");
+    const inFashion = () => cat === "fashion" || cat === "runway";
+    const setLevel = () => {
+      if (lvRoot && lvFashion) { lvRoot.hidden = inFashion(); lvFashion.hidden = !inFashion(); }
+      if (catBrand) catBrand.hidden = cat !== "runway";
+      catBtns.forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.cat === cat)));
+    };
     const setCats = (open) => {
       if (!catToggle) return;
       catToggle.setAttribute("aria-expanded", String(open));
       catOpts.hidden = !open;
-      const on = catBtns.find((x) => x.getAttribute("aria-pressed") === "true");
       catCur.hidden = open || cat === "all";
-      if (on) catCur.innerHTML = on.innerHTML;
+      const on = catBtns.find((x) => x.dataset.cat === cat);
+      if (on) catCur.innerHTML = cat === "runway" ? catBtns.find((x) => x.dataset.cat === "fashion").innerHTML + " / " + on.innerHTML : on.innerHTML;
     };
     if (catToggle) {
       catToggle.addEventListener("click", () => setCats(catOpts.hidden));
@@ -386,9 +459,10 @@
     }
     catBtns.forEach((b) => b.addEventListener("click", () => {
       cat = b.dataset.cat;
-      catBtns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      filter();
-      setCats(false);
+      setLevel(); filter();
+      // Fashion and Runways keep the menu open (their own line, and the brand index link), and so does All on the
+      // Fashion line (it brings the first line back); the others close it
+      if (!inFashion() && !b.closest('[data-lv="fashion"]')) setCats(false);
     }));
     document.addEventListener("ac:lang", filter);
     // arriving from a designer's page (archive?designer=Hedi+Slimane): the name is in the search bar and the list shows
@@ -397,6 +471,117 @@
     try { const sp = new URLSearchParams(location.search); q0 = sp.get("q") || ""; d0 = sp.get("designer") || ""; } catch (e) {}
     if (d0) { input.value = d0; onlyDesigner = norm(d0).trim(); filter(); }
     else if (q0) { input.value = q0; filter(); loadFull().then(filter); }
+  }
+
+  /* ---------- runways, one show: a look opens large with its close-ups under it (they open large too);
+     "Run the show" plays every photo in order, 1, 1.1, 2, 2.1 … ---------- */
+  const looksEl = $("[data-looks]"), lv = $(".look-view");
+  if (looksEl && lv) {
+    const btns = $$(".look-open", looksEl), big = $(".lv-big", lv), pair = $(".lv-pair", lv);
+    const cnt = $(".lv-count", lv), prev = $(".lv-prev", lv), next = $(".lv-next", lv), close = $(".lv-close", lv), play = $(".lv-play", lv);
+    const looks = btns.map((b) => [b.dataset.full].concat(b.dataset.details ? b.dataset.details.split("|") : []));
+    const seq = []; looks.forEach((l, i) => l.forEach((_, j) => seq.push([i, j])));   // every photo, in order
+    const SHOW_MS = 2600;
+    let k = 0, part = 0, opener = null, timer = 0;
+    const PLAY = '<span data-l="en">Run the show</span><span data-l="it" lang="it">Fai sfilare</span>';
+    const PAUSE = '<span data-l="en">Pause</span><span data-l="it" lang="it">Pausa</span>';
+    // the looks around the one on screen are fetched and decoded ahead, so fast arrows never wait on the network;
+    // the big photo only changes once the new one is ready, and a newer request always wins over an older one
+    const ready = new Map();
+    const fetchImg = (u) => {
+      if (!ready.has(u)) { const im = new Image(); im.src = u; ready.set(u, (im.decode ? im.decode() : new Promise((ok) => { im.onload = ok; })).catch(() => {})); }
+      return ready.get(u);
+    };
+    const around = () => { for (const d of [1, -1, 2, -2, 3]) { const l = looks[(k + d + looks.length) % looks.length]; l.forEach(fetchImg); } };
+    let want = 0;
+    const setBig = (u) => {
+      const t = ++want;
+      fetchImg(u).then(() => { if (t === want) big.src = u; });
+      if (!big.getAttribute("src")) big.src = u;
+    };
+    const show = () => {
+      const l = looks[k]; part = Math.min(part, l.length - 1);
+      setBig(l[part]); around();
+      big.alt = $("img", btns[k]).alt + (part ? " — close-up" : "");
+      // the photos of this look, under the big one: the full look, then its close-ups
+      if (l.length > 1) {
+        pair.innerHTML = l.map((src, j) => `<button type="button" class="lv-thumb" data-j="${j}" aria-pressed="${j === part}" aria-label="${j ? "Close-up " + j : "Full look"}"><img src="${src}" alt=""></button>`).join("");
+        pair.hidden = false;
+      } else { pair.innerHTML = ""; pair.hidden = true; }
+      cnt.textContent = String(k + 1).padStart(2, "0") + " / " + String(looks.length).padStart(2, "0");
+      prev.hidden = next.hidden = looks.length < 2;
+    };
+    const stop = () => { clearInterval(timer); timer = 0; play.innerHTML = PLAY; play.setAttribute("aria-pressed", "false"); };
+    const advance = () => {
+      let at = seq.findIndex(([i, j]) => i === k && j === part);
+      if (at >= seq.length - 1) { stop(); return; }   // the show ends on the last photo
+      [k, part] = seq[at + 1]; show();
+    };
+    const start = () => { clearInterval(timer); timer = setInterval(advance, SHOW_MS); play.innerHTML = PAUSE; play.setAttribute("aria-pressed", "true"); };
+    const open = (i, run) => {
+      k = i; part = 0; opener = document.activeElement; show();
+      lv.classList.add("fade"); lv.hidden = false; document.body.style.overflow = "hidden";
+      close.focus({ preventScroll: true });
+      requestAnimationFrame(() => lv.classList.remove("fade"));
+      if (run && !reduceMotion) start(); else stop();
+    };
+    const shut = () => {
+      stop(); lv.classList.add("fade");
+      setTimeout(() => { lv.hidden = true; lv.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
+    };
+    const step = (d) => { stop(); k = (k + d + looks.length) % looks.length; part = 0; show(); };
+    btns.forEach((b, i) => b.addEventListener("click", () => open(i, false)));
+    $$("[data-run]").forEach((b) => b.addEventListener("click", () => open(0, true)));
+    play.addEventListener("click", () => (timer ? stop() : start()));
+    pair.addEventListener("click", (e) => { const t = e.target.closest(".lv-thumb"); if (t) { stop(); part = Number(t.dataset.j); show(); } });
+    // clicking the big photo goes on to the next one: the close-ups of the look, then the next look
+    big.addEventListener("click", () => { stop(); if (part < looks[k].length - 1) { part++; show(); } else step(1); });
+    prev.addEventListener("click", () => step(-1));
+    next.addEventListener("click", () => step(1));
+    close.addEventListener("click", shut);
+    lv.addEventListener("click", (e) => { if (e.target === lv || e.target.classList.contains("lv-stage")) shut(); });
+    window.addEventListener("keydown", (e) => {
+      if (lv.hidden) return;
+      if (e.key === "Escape") shut();
+      else if (e.key === "ArrowRight") step(1);
+      else if (e.key === "ArrowLeft") step(-1);
+      else if (e.key === "ArrowDown") { stop(); part = Math.min(part + 1, looks[k].length - 1); show(); }
+      else if (e.key === "ArrowUp") { stop(); part = Math.max(part - 1, 0); show(); }
+      else if (e.key === " ") { timer ? stop() : start(); }
+      else return;
+      e.preventDefault();
+    });
+    let sx = null;
+    lv.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+    lv.addEventListener("touchend", (e) => {
+      if (sx === null) return;
+      const dx = e.changedTouches[0].clientX - sx; sx = null;
+      if (Math.abs(dx) > 40 && looks.length > 1) step(dx < 0 ? 1 : -1);
+    });
+  }
+
+  /* ---------- runways, one brand: filter the shows by designer, season and year ---------- */
+  const rwList = $("[data-runways]");
+  if (rwList) {
+    const rws = $$(".row", rwList), sel = { designer: "", season: "", year: "" };
+    const none = $(".none"), countEl = $(".count");
+    const apply = () => {
+      let shown = 0;
+      for (const li of rws) {
+        const ok = (!sel.designer || li.dataset.designer === sel.designer) && (!sel.season || li.dataset.season === sel.season) && (!sel.year || li.dataset.year === sel.year);
+        li.hidden = !ok; if (ok) shown++;
+      }
+      none.hidden = shown > 0;
+      const any = sel.designer || sel.season || sel.year;
+      countEl.textContent = any ? (lang() === "it" ? `${shown} di ${rws.length}` : `${shown} of ${rws.length}`) : "";
+      document.dispatchEvent(new Event("ac:rows"));
+    };
+    $$("button[data-f]").forEach((b) => b.addEventListener("click", () => {
+      sel[b.dataset.f] = b.dataset.v;
+      $$(`button[data-f="${b.dataset.f}"]`).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      apply();
+    }));
+    document.addEventListener("ac:lang", apply);
   }
 
   /* ---------- indexes: the photograph of the entry in focus sits on the right.

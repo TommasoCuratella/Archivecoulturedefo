@@ -680,3 +680,90 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .story .standfirst { font-size: calc(var(--fs-text) + 1.5px); line-height: 1.65; margin-bottom: 1.6em; }
 .story .sec-head { font: inherit; font-weight: 400; font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; color: var(--muted); margin: 2.6em 0 1em; }
 .story .pull { margin: 2.2em 0; padding: 0 8%; text-align: center; font-size: calc(var(--fs-text) + 2px); line-height: 1.6; }
+
+/* ---------- runways ---------- */
+/* Archive, Category: the choices sit on their own line under "Category"; Fashion opens a second line */
+.seg-cat { flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 6px; }   /* its own step, under search and sort */
+.seg-cat .seg-cur { order: 0; }
+.seg-cat .seg-opts { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.seg-cat .seg-opts[hidden] { display: none; }
+.cat-lv, .cat-brand { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 .55em; }
+.cat-lv[hidden], .cat-brand[hidden] { display: none; }
+.cat-brand a { color: var(--ink); }
+.page-lead { margin: -20px 0 36px; }
+.page-lead .xref { color: var(--ink); }
+.page-title .art-sub { font-weight: 400; }
+.rfilters { flex-direction: column; gap: 6px; }
+.row-thumb-empty { display: none; }
+.runways-back { margin-top: 48px; }
+.runways-back a { color: var(--muted); }
+@media (hover: hover) { .runways-back a:hover { color: var(--ink); } }
+@media (max-width: 759px) {
+  .rows .row-thumb-empty { display: block; background: var(--smoke); }
+}
+@media (min-width: 760px) { .index .letters.brands .row a { grid-template-columns: minmax(0, 1fr) 240px; } }
+
+/* runways, one show: the full looks in a grid, in the order they walked */
+.show-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); gap: 0 64px; align-items: stretch; }
+.looks { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 32px 18px; align-content: start; }
+/* the text of the show on the right; its facts at the bottom of that column */
+.show-side { display: flex; flex-direction: column; min-width: 0; }
+.show-side .story { font-size: var(--fs-text); line-height: 1.75; letter-spacing: var(--tr-text); text-transform: none; }
+.show-side .story p + p { margin-top: 1em; }
+.show-side .story .sec-head + p { margin-top: 0; }
+.look { display: flex; flex-direction: column; gap: 10px; }
+.look-open { display: block; padding: 0; cursor: zoom-in; }
+.look-open img { width: 100%; height: auto; background: var(--smoke); transition: opacity .25s ease; }
+@media (hover: hover) { .look-open:hover img { opacity: .82; } }
+.look-n { font-size: 11px; color: var(--muted); }
+@media (max-width: 1099px) { .show-layout { grid-template-columns: 1fr; } .show-side { margin-top: 64px; max-width: 640px; } }
+@media (max-width: 759px) { .looks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 12px; } .show-side { margin-top: 48px; } }
+/* a look, large; its close-up under it */
+.look-view { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 56px var(--gut) 64px; transition: opacity .22s ease-out; }
+.look-view[hidden] { display: none; }
+.look-view.fade { opacity: 0; }
+.lv-stage { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
+.lv-big { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; cursor: pointer; }
+.lv-pair { display: flex; gap: 10px; flex: none; }
+.lv-pair[hidden] { display: none; }
+.lv-thumb { padding: 0; opacity: .45; transition: opacity .2s ease; }
+.lv-thumb[aria-pressed="true"] { opacity: 1; outline: 1px solid var(--ink); outline-offset: 3px; }
+.lv-thumb img { display: block; width: 56px; height: 84px; object-fit: cover; background: var(--smoke); }
+.look-view > button, .lv-count { position: absolute; padding: 14px 18px; color: var(--muted); }
+.lv-close { top: 4px; right: calc(var(--gut) - 18px); }
+.lv-prev, .lv-next { top: 50%; transform: translateY(-50%); font-size: 15px; }
+.lv-prev { left: calc(var(--gut) - 18px); }
+.lv-next { right: calc(var(--gut) - 18px); }
+.lv-count { bottom: 6px; left: 50%; transform: translateX(-50%); margin: 0; }
+@media (hover: hover) { .look-view > button:hover { color: var(--ink); } .lv-thumb:hover { opacity: 1; } }
+@media (max-width: 759px) {
+  .look-view { padding: 52px 12px 64px; }
+  .lv-prev, .lv-next { top: auto; bottom: 6px; transform: none; }
+}
+
+/* runways, one show: "Run the show", and the facts under the looks */
+.show-play { margin: -18px 0 32px; }
+.run-show { color: var(--ink); padding: 4px 0; letter-spacing: inherit; }
+@media (hover: hover) { .run-show:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.lv-play { bottom: 6px; left: calc(var(--gut) - 18px); }
+.lv-play[aria-pressed="true"] { color: var(--ink); }
+@media (max-width: 759px) {
+  .lv-play { bottom: auto; top: 4px; left: calc(var(--gut) - 18px); }
+}
+
+/* runway photos are portrait: in a thumbnail the window sits high, on the model's face, never below the head */
+.rows .row-thumb[src*="/runway-"] { object-position: 50% 10%; }
+/* a whole film, with its controls */
+/* a whole film from a link: clean, like the films in the articles; a hairline shows where you are */
+.fl-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 10px; max-width: calc(100vw - 140px); }
+.film-long video { width: 100%; height: auto; max-width: none; max-height: none; background: #000; cursor: pointer; }
+.fl-bar { position: relative; height: 13px; cursor: pointer; }
+.fl-bar::before, .fl-fill { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 1px; background: var(--line, #ddd); }
+.fl-fill { background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); }
+.fl-row { display: flex; justify-content: space-between; gap: 24px; color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
+.fl-page { color: var(--ink); }
+@media (hover: hover) { .fl-page:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.film-long .film-sound { bottom: 14px; }
+@media (max-width: 759px) { .fl-wrap { max-width: 100vw; } .film-long video { max-height: calc(100dvh - 190px); } }
+/* the look viewer on phones: quick taps are taps, not zoom or text selection */
+.look-view, .look-view button, .lv-big { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
