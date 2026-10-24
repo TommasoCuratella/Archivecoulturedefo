@@ -716,7 +716,7 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .look-open img { width: 100%; height: auto; background: var(--smoke); transition: opacity .25s ease; }
 @media (hover: hover) { .look-open:hover img { opacity: .82; } }
 .look-n { font-size: 11px; color: var(--muted); }
-@media (max-width: 1099px) { .show-layout { grid-template-columns: 1fr; } .show-side { margin-top: 64px; max-width: 640px; } .show-facts { margin-top: 0; } }
+@media (max-width: 1099px) { .show-layout { grid-template-columns: 1fr; } .show-side { margin-top: 64px; max-width: 640px; } }
 @media (max-width: 759px) { .looks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 12px; } .show-side { margin-top: 48px; } }
 /* a look, large; its close-up under it */
 .look-view { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 56px var(--gut) 64px; transition: opacity .22s ease-out; }
@@ -745,13 +745,13 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .show-play { margin: -18px 0 32px; }
 .run-show { color: var(--ink); padding: 4px 0; letter-spacing: inherit; }
 @media (hover: hover) { .run-show:hover { text-decoration: underline; text-underline-offset: 3px; } }
-.show-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 28px; margin-top: auto; padding-top: 64px; }
-.show-facts dt { color: var(--muted); }
-.show-facts dd { margin: 0; color: var(--ink); }
-.show-facts .xref { color: var(--ink); }
 .lv-play { bottom: 6px; left: calc(var(--gut) - 18px); }
 .lv-play[aria-pressed="true"] { color: var(--ink); }
 @media (max-width: 759px) {
   .lv-play { bottom: auto; top: 4px; left: calc(var(--gut) - 18px); }
-  .show-facts { padding-top: 48px; gap: 6px 18px; }
 }
+
+/* runway photos are portrait: in a thumbnail the window sits high, on the model's face, never below the head */
+.rows .row-thumb[src*="/runway-"] { object-position: 50% 10%; }
+/* a whole film, with its controls */
+.film-long video { width: calc(100vw - 2 * var(--gut)); height: calc(100vh - 120px); height: calc(100dvh - 120px); max-width: none; max-height: none; object-fit: contain; background: transparent; cursor: auto; }

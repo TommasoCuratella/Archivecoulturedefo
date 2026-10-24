@@ -153,6 +153,38 @@
     ev.preventDefault(); openClip(a);
   });
 
+  // a film from a link (Footage, a runway's "Video of the runway"): it opens large with its sound and its controls,
+  // so a whole show can be scrubbed through; the link itself still leads to the file
+  function openLongFilm(a) {
+    const box = document.createElement("div");
+    box.className = "film film-long fade";
+    box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-label", a.getAttribute("aria-label") || "Film");
+    box.innerHTML = '<video controls playsinline preload="metadata"></video>'
+      + '<button type="button" class="film-close"><span data-l="en">Close</span><span data-l="it" lang="it">Chiudi</span></button>';
+    const v = $("video", box), cls = $(".film-close", box);
+    if (a.dataset.poster) v.poster = a.dataset.poster;
+    v.src = a.getAttribute("href");
+    document.body.appendChild(box);
+    document.body.style.overflow = "hidden";
+    v.play().catch(() => {});
+    requestAnimationFrame(() => box.classList.remove("fade"));
+    cls.focus({ preventScroll: true });
+    const shut = () => {
+      box.classList.add("fade");
+      removeEventListener("keydown", key, true);
+      setTimeout(() => { v.pause(); v.removeAttribute("src"); v.load(); box.remove(); document.body.style.overflow = ""; a.focus({ preventScroll: true }); }, 220);
+    };
+    const key = (e) => { if (e.key === "Escape") { e.preventDefault(); shut(); } };
+    addEventListener("keydown", key, true);
+    box.addEventListener("click", (e) => { if (e.target === box || cls.contains(e.target)) shut(); });
+  }
+  document.addEventListener("click", (ev) => {
+    const a = ev.target.closest && ev.target.closest("a[data-film]");
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    ev.preventDefault(); openLongFilm(a);
+  });
+
   function openFilm(small) {
     const box = document.createElement("div");
     box.className = "film fade";
