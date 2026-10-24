@@ -153,29 +153,60 @@
     ev.preventDefault(); openClip(a);
   });
 
-  // a film from a link (Footage, a runway's "Video of the runway"): it opens large with its sound and its controls,
-  // so a whole show can be scrubbed through; the link itself still leads to the file
+  // a film from a link (Tapes, a runway's "Video of the runway"): it opens large and clean, like the films in the articles —
+  // Close, the sound, and a hairline under the film that shows where you are (click it to jump); a click on the film pauses it.
+  // Under it, a way on to the article or the show (data-page); the link itself still leads to the file
   function openLongFilm(a) {
     const box = document.createElement("div");
     box.className = "film film-long fade";
     box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
     box.setAttribute("aria-label", a.getAttribute("aria-label") || "Film");
-    box.innerHTML = '<video controls playsinline preload="metadata"></video>'
-      + '<button type="button" class="film-close"><span data-l="en">Close</span><span data-l="it" lang="it">Chiudi</span></button>';
-    const v = $("video", box), cls = $(".film-close", box);
+    const pg = a.dataset.page && a.dataset.page !== location.pathname ? a.dataset.page : "";
+    box.innerHTML = '<div class="fl-wrap"><video playsinline preload="auto"></video>'
+      + '<div class="fl-bar" role="slider" aria-label="Position" tabindex="0"><span class="fl-fill"></span></div>'
+      + '<div class="fl-row"><span class="fl-time">0:00</span>'
+      + (pg ? '<a class="fl-page" href="' + pg + '">' + (a.dataset.pageLabel || "") + ' &rarr;</a>' : "") + '</div></div>'
+      + '<button type="button" class="film-close"><span data-l="en">Close</span><span data-l="it" lang="it">Chiudi</span></button>'
+      + '<button type="button" class="vid-sound film-sound" aria-pressed="true">' + SOUND(true) + '</button>';
+    const v = $("video", box), cls = $(".film-close", box), snd = $(".film-sound", box);
+    const bar = $(".fl-bar", box), fill = $(".fl-fill", box), time = $(".fl-time", box);
     if (a.dataset.poster) v.poster = a.dataset.poster;
     v.src = a.getAttribute("href");
     document.body.appendChild(box);
     document.body.style.overflow = "hidden";
-    v.play().catch(() => {});
+    v.muted = false;
+    v.play().catch(() => { v.muted = true; snd.setAttribute("aria-pressed", "false"); snd.innerHTML = SOUND(false); v.play().catch(() => {}); });
     requestAnimationFrame(() => box.classList.remove("fade"));
     cls.focus({ preventScroll: true });
+    // the film as large as the screen allows, whatever its shape (old 4:3 tapes, 16:9, portrait)
+    const wrap = $(".fl-wrap", box);
+    const fit = () => {
+      if (!v.videoWidth) return;
+      const small = innerWidth < 760, maxW = innerWidth - (small ? 0 : 140), maxH = innerHeight - (small ? 190 : 170);
+      wrap.style.width = Math.round(Math.min(maxW, maxH * v.videoWidth / v.videoHeight)) + "px";
+    };
+    v.addEventListener("loadedmetadata", fit);
+    addEventListener("resize", fit);
+    const mmss = (t) => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+    v.addEventListener("timeupdate", () => {
+      if (!v.duration) return;
+      fill.style.transform = "scaleX(" + (v.currentTime / v.duration).toFixed(4) + ")";
+      time.textContent = mmss(v.currentTime) + " / " + mmss(v.duration);
+    });
+    bar.addEventListener("click", (e) => { const r = bar.getBoundingClientRect(); if (v.duration) v.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * v.duration; });
+    bar.addEventListener("keydown", (e) => { if (!v.duration) return; if (e.key === "ArrowRight") v.currentTime += 10; else if (e.key === "ArrowLeft") v.currentTime -= 10; else return; e.preventDefault(); });
+    v.addEventListener("click", () => (v.paused ? v.play() : v.pause()));
+    snd.addEventListener("click", () => { v.muted = !v.muted; snd.setAttribute("aria-pressed", String(!v.muted)); snd.innerHTML = SOUND(!v.muted); });
     const shut = () => {
       box.classList.add("fade");
       removeEventListener("keydown", key, true);
+      removeEventListener("resize", fit);
       setTimeout(() => { v.pause(); v.removeAttribute("src"); v.load(); box.remove(); document.body.style.overflow = ""; a.focus({ preventScroll: true }); }, 220);
     };
-    const key = (e) => { if (e.key === "Escape") { e.preventDefault(); shut(); } };
+    const key = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); shut(); }
+      else if (e.key === " " && e.target === document.body || e.key === " " && box.contains(e.target) && e.target.tagName !== "BUTTON") { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+    };
     addEventListener("keydown", key, true);
     box.addEventListener("click", (e) => { if (e.target === box || cls.contains(e.target)) shut(); });
   }
@@ -454,9 +485,23 @@
     let k = 0, part = 0, opener = null, timer = 0;
     const PLAY = '<span data-l="en">Run the show</span><span data-l="it" lang="it">Fai sfilare</span>';
     const PAUSE = '<span data-l="en">Pause</span><span data-l="it" lang="it">Pausa</span>';
+    // the looks around the one on screen are fetched and decoded ahead, so fast arrows never wait on the network;
+    // the big photo only changes once the new one is ready, and a newer request always wins over an older one
+    const ready = new Map();
+    const fetchImg = (u) => {
+      if (!ready.has(u)) { const im = new Image(); im.src = u; ready.set(u, (im.decode ? im.decode() : new Promise((ok) => { im.onload = ok; })).catch(() => {})); }
+      return ready.get(u);
+    };
+    const around = () => { for (const d of [1, -1, 2, -2, 3]) { const l = looks[(k + d + looks.length) % looks.length]; l.forEach(fetchImg); } };
+    let want = 0;
+    const setBig = (u) => {
+      const t = ++want;
+      fetchImg(u).then(() => { if (t === want) big.src = u; });
+      if (!big.getAttribute("src")) big.src = u;
+    };
     const show = () => {
       const l = looks[k]; part = Math.min(part, l.length - 1);
-      big.src = l[part];
+      setBig(l[part]); around();
       big.alt = $("img", btns[k]).alt + (part ? " — close-up" : "");
       // the photos of this look, under the big one: the full look, then its close-ups
       if (l.length > 1) {
@@ -512,12 +557,6 @@
       if (sx === null) return;
       const dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 40 && looks.length > 1) step(dx < 0 ? 1 : -1);
-    });
-    // the next photos are fetched ahead while the show runs, so they never arrive late
-    const warm = new Set();
-    big.addEventListener("load", () => {
-      const at = seq.findIndex(([i, j]) => i === k && j === part);
-      seq.slice(at + 1, at + 4).forEach(([i, j]) => { const u = looks[i][j]; if (!warm.has(u)) { warm.add(u); const im = new Image(); im.src = u; } });
     });
   }
 
