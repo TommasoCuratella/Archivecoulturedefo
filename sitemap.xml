@@ -278,24 +278,30 @@
   </url>
   <url>
     <loc>https://archivecoulture.com/tapes</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://archivecoulture.com/runways</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://archivecoulture.com/runways/dior-homme</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://archivecoulture.com/runways/dior-homme/autumn-winter-2004</loc>
+    <loc>https://archivecoulture.com/runways/ann-demeulemeester</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/runways/dior-homme/fall-winter-2004</loc>
     <lastmod>2026-10-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -392,5 +398,130 @@
     <image:image><image:loc>https://archivecoulture.com/images/runway-dior-homme-autumn-winter-2004/48.webp</image:loc></image:image>
     <image:image><image:loc>https://archivecoulture.com/images/runway-dior-homme-autumn-winter-2004/49.webp</image:loc></image:image>
     <image:image><image:loc>https://archivecoulture.com/images/runway-dior-homme-autumn-winter-2004/50.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/runways/ann-demeulemeester/spring-summer-1998</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/01.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/01-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/02.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/02-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/03.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/04.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/04-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/05.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/06.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/06-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/07.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/07-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/08.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/08-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/09.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/09-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/10.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/10-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/11.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/11-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/12.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/12-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/13.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/14.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/15.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/16.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/17.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/17-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/18.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/18-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/19.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/19-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/20.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/21.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/22.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/23.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/23-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/24.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/25.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/26.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/26-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/27.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/28.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/29.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/29-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/30.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/31.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/31-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/32.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/32-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/33.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/34.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/34-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/35.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/35-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/36.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/36-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/37.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/38.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/39.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/40.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/41.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/41-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/42.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/43.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/44.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/44-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/45.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/45-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/46.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/46-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/47.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/47-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/48.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/48-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/49.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/50.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/51.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/52.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/52-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/53.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/53-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/53-2.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/54.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/55.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/55-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/55-2.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/56.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/56-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/57.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/58.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/59.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/59-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/60.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/61.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/61-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/62.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/62-2.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/63.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/63-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/64.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/64-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/65.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/66.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/67.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/67-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/68.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/68-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/69.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/69-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/70.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/70-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/71.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/71-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/72.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/73.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/73-1.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/73-2.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/74.webp</image:loc></image:image>
   </url>
 </urlset>
