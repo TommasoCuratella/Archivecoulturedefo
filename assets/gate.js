@@ -18,8 +18,21 @@
       '<span data-l="en">Thank you for scanning the code.<br>You are in. Welcome to the archive.</span>' +
       '<span data-l="it" lang="it">Grazie per aver scansionato il codice.<br>Ci sei. Benvenuto nell’archivio.</span>';
     gate.firstElementChild.prepend(msg);
-    const btn = gate.querySelector("p");
-    if (btn) btn.innerHTML = '<span data-l="en">[ enter ]</span><span data-l="it" lang="it">[ entra ]</span>';
+    // here only [ enter ] opens the site, not a click anywhere on the screen
+    const p = gate.querySelector("p");
+    if (p) p.innerHTML = '<button type="button" class="gate-enter"><span data-l="en">[ enter ]</span><span data-l="it" lang="it">[ entra ]</span></button>';
+    gate.removeAttribute("role"); gate.removeAttribute("tabindex"); gate.removeAttribute("aria-label");
+    // the heartbeat starts straight away; if the browser holds the sound back until a first touch, any touch starts it
+    const pulse = document.querySelector(".pulse");
+    if (pulse && pulse.getAttribute("aria-pressed") !== "true") pulse.click();
+    const evs = ["pointerdown", "touchend", "click", "keydown"];
+    const wake = () => {
+      const a = window.ACSound && window.ACSound.audio;
+      if (!a) return;
+      if (a.ac.state === "running") return evs.forEach((ev) => removeEventListener(ev, wake, true));
+      a.ac.resume();
+    };
+    evs.forEach((ev) => addEventListener(ev, wake, true));
     // clean the address bar on the real /found link only
     const viaLink = /^\/found(\.html)?\/?$/.test(location.pathname) || /[?&]found\b/.test(location.search);
     try { if (viaLink) history.replaceState(null, "", "/" + location.hash); } catch (e) {}
@@ -35,7 +48,13 @@
     document.documentElement.classList.remove("gated");
     setTimeout(() => gate.remove(), 1000);
   };
-  gate.addEventListener("click", enter);
-  gate.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enter(); } });
-  gate.focus();
+  if (found) {
+    const b = gate.querySelector(".gate-enter");
+    b.addEventListener("click", enter);
+    b.focus({ preventScroll: true });
+  } else {
+    gate.addEventListener("click", enter);
+    gate.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enter(); } });
+    gate.focus();
+  }
 })();
