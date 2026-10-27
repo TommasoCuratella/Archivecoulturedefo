@@ -1,11 +1,25 @@
 /* Home: the "enter the archive" screen. It covers the home the first time a visitor arrives in a session;
-   one click (or Enter / Space) lifts it and turns the sound on, as on the first version of the site. */
+   one click (or Enter / Space) lifts it and turns the sound on, as on the first version of the site.
+   /found (only reached from the QR on the printed cards) shows it every time, with a thank-you line. */
 (() => {
   const gate = document.getElementById("gate");
   if (!gate) return;
+  const found = gate.hasAttribute("data-found") || /^\/found(\.html)?\/?$/.test(location.pathname) || /[?&]found\b/.test(location.search);
   let seen = false;
   try { seen = sessionStorage.getItem("ac-entered") === "1"; } catch (e) {}
-  if (seen) { gate.remove(); return; }
+  if (seen && !found) { gate.remove(); return; }
+  if (found) {
+    gate.classList.add("found");
+    gate.setAttribute("aria-label", "Thank you for scanning the code. Enter the archive");
+    gate.setAttribute("data-aria-it", "Grazie per aver scansionato il codice. Entra nell’archivio");
+    const msg = document.createElement("div");
+    msg.className = "gate-msg";
+    msg.innerHTML = '<span class="gate-mark">* Archive Coulture</span>' +
+      '<span data-l="en">Thank you for scanning the code.<br>Now it’s time to enter the archive.</span>' +
+      '<span data-l="it" lang="it">Grazie per aver scansionato il codice.<br>Ora è il momento di entrare nell’archivio.</span>';
+    gate.firstElementChild.prepend(msg);
+    try { if (location.pathname !== "/" || location.search) history.replaceState(null, "", "/" + location.hash); } catch (e) {}
+  }
   gate.hidden = false;
   document.documentElement.classList.add("gated");
   const enter = () => {

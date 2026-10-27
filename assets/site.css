@@ -672,6 +672,8 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 #gate p { font-size: 11px; letter-spacing: .3em; text-indent: .3em; text-transform: uppercase; animation: gate-blink 1.6s steps(2, jump-none) infinite; }
 #gate small { display: block; margin-top: 10px; color: var(--muted); font-size: 10px; letter-spacing: .2em; text-indent: .2em; text-transform: uppercase; }
 #gate:focus { outline: none; }
+#gate .gate-msg { margin-bottom: 44px; font-size: 12px; line-height: 1.9; letter-spacing: .14em; text-transform: uppercase; padding: 0 24px; }
+#gate .gate-mark { display: block; margin-bottom: 28px; color: var(--muted); font-size: 10px; letter-spacing: .24em; }
 @keyframes gate-blink { 50% { opacity: .25; } }
 @media (prefers-reduced-motion: reduce) { #gate p { animation: none; } }
 .gated, .gated body { overflow: hidden; }
