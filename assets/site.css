@@ -673,6 +673,10 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 #gate small { display: block; margin-top: 10px; color: var(--muted); font-size: 10px; letter-spacing: .2em; text-indent: .2em; text-transform: uppercase; }
 #gate:focus { outline: none; }
 #gate .gate-msg { margin-bottom: 44px; font-size: 12px; line-height: 1.9; letter-spacing: .14em; text-transform: uppercase; padding: 0 24px; }
+#gate.found { cursor: default; }
+#gate .gate-enter { font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: none; border: 0; padding: 14px 18px; margin: -14px -18px; cursor: pointer; }
+#gate .gate-enter:focus { outline: none; }
+#gate .gate-enter:focus-visible { outline: 1px solid currentColor; outline-offset: -6px; }
 #gate .gate-mark { display: block; margin-bottom: 28px; color: var(--muted); font-size: 10px; letter-spacing: .24em; }
 @keyframes gate-blink { 50% { opacity: .25; } }
 @media (prefers-reduced-motion: reduce) { #gate p { animation: none; } }
