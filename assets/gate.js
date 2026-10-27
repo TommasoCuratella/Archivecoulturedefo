@@ -10,15 +10,19 @@
   if (seen && !found) { gate.remove(); return; }
   if (found) {
     gate.classList.add("found");
-    gate.setAttribute("aria-label", "Thank you for scanning the code. Enter the archive");
-    gate.setAttribute("data-aria-it", "Grazie per aver scansionato il codice. Entra nell’archivio");
+    gate.setAttribute("aria-label", "Thank you for scanning the code. You are in. Enter");
+    gate.setAttribute("data-aria-it", "Grazie per aver scansionato il codice. Ci sei. Entra");
     const msg = document.createElement("div");
     msg.className = "gate-msg";
     msg.innerHTML = '<span class="gate-mark">* Archive Coulture</span>' +
-      '<span data-l="en">Thank you for scanning the code.<br>Now it’s time to enter the archive.</span>' +
-      '<span data-l="it" lang="it">Grazie per aver scansionato il codice.<br>Ora è il momento di entrare nell’archivio.</span>';
+      '<span data-l="en">Thank you for scanning the code.<br>You are in. Welcome to the archive.</span>' +
+      '<span data-l="it" lang="it">Grazie per aver scansionato il codice.<br>Ci sei. Benvenuto nell’archivio.</span>';
     gate.firstElementChild.prepend(msg);
-    try { if (location.pathname !== "/" || location.search) history.replaceState(null, "", "/" + location.hash); } catch (e) {}
+    const btn = gate.querySelector("p");
+    if (btn) btn.innerHTML = '<span data-l="en">[ enter ]</span><span data-l="it" lang="it">[ entra ]</span>';
+    // clean the address bar on the real /found link only
+    const viaLink = /^\/found(\.html)?\/?$/.test(location.pathname) || /[?&]found\b/.test(location.search);
+    try { if (viaLink) history.replaceState(null, "", "/" + location.hash); } catch (e) {}
   }
   gate.hidden = false;
   document.documentElement.classList.add("gated");
