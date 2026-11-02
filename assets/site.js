@@ -541,7 +541,9 @@
     const step = (d) => { stop(); k = (k + d + looks.length) % looks.length; part = 0; show(); };
     btns.forEach((b, i) => b.addEventListener("click", () => open(i, false)));
     $$("[data-run]").forEach((b) => b.addEventListener("click", () => open(0, true)));
-    window.ACOpenLook = (i) => open(Math.max(0, Math.min(i, looks.length - 1)), false);
+    window.ACOpenLook = (i, j) => { open(Math.max(0, Math.min(i, looks.length - 1)), false); if (j) { part = Math.min(j, looks[k].length - 1); show(); } };
+    // a lookbook page: every photo in a grid opens its look (front or back) in the viewer
+    $$("[data-open-look]").forEach((b) => b.addEventListener("click", () => window.ACOpenLook(Number(b.dataset.openLook), Number(b.dataset.openPart || 0))));
     play.addEventListener("click", () => (timer ? stop() : start()));
     pair.addEventListener("click", (e) => { const t = e.target.closest(".lv-thumb"); if (t) { stop(); part = Number(t.dataset.j); show(); } });
     // clicking the big photo goes on to the next one: the close-ups of the look, then the next look

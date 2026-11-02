@@ -789,3 +789,11 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 /* the look viewer on phones: quick taps are taps, not zoom or text selection */
 .look-view, .look-view button, .lv-big { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 .looks[hidden], .lv-descs[hidden] { display: none !important; }
+/* lookbook page: every photo of the shoot in a grid */
+.lookbook-page { padding: var(--top) var(--gut) 80px; }
+.lookbook-page .art-head { margin-bottom: 40px; }
+.lb-grid { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lb-cell { display: block; width: 100%; padding: 0; cursor: zoom-in; }
+.lb-cell img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; background: var(--smoke); transition: opacity .25s ease; }
+@media (hover: hover) { .lb-cell:hover img { opacity: .85; } }
+@media (max-width: 759px) { .lb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .lookbook-page .art-head { margin-bottom: 24px; } }
