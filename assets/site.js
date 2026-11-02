@@ -119,6 +119,7 @@
     });
   }  // "Full lookbook": opens the article's photographs in the lightbox, from the first
   document.querySelectorAll("[data-lookbook]").forEach((a) => a.addEventListener("click", (e) => {
+    if (window.ACOpenLook) { e.preventDefault(); window.ACOpenLook(0); return; }
     const imgs = [...document.querySelectorAll(".strip .ph img")];
     if (!imgs.length) return;
     e.preventDefault(); openLightbox(imgs, 0);
@@ -258,7 +259,7 @@
   $$("[data-strip]").forEach((strip) => {
     const figs = $$(".ph", strip), imgs = figs.map((f) => $("img", f)).filter(Boolean);   // a film in the strip is not a photo
     imgs.forEach((im, n) => {
-      im.addEventListener("click", () => openLightbox(imgs, n));
+      im.addEventListener("click", () => { if (im.dataset.look && window.ACOpenLook) window.ACOpenLook(Number(im.dataset.look)); else openLightbox(imgs, n); });
     });
     // a film plays silently on a loop; clicking it (or its label) turns the sound on and off
     $$(".vid", strip).forEach((fig) => {
@@ -485,6 +486,7 @@
   if (looksEl && lv) {
     const btns = $$(".look-open", looksEl), big = $(".lv-big", lv), pair = $(".lv-pair", lv);
     const cnt = $(".lv-count", lv), prev = $(".lv-prev", lv), next = $(".lv-next", lv), close = $(".lv-close", lv), play = $(".lv-play", lv);
+    const desc = $(".lv-desc", lv);
     const looks = btns.map((b) => [b.dataset.full].concat(b.dataset.details ? b.dataset.details.split("|") : []));
     const seq = []; looks.forEach((l, i) => l.forEach((_, j) => seq.push([i, j])));   // every photo, in order
     const SHOW_MS = 2600;
@@ -516,6 +518,7 @@
       } else { pair.innerHTML = ""; pair.hidden = true; }
       cnt.textContent = String(k + 1).padStart(2, "0") + " / " + String(looks.length).padStart(2, "0");
       prev.hidden = next.hidden = looks.length < 2;
+      if (desc) { const d = document.querySelector(`.lv-descs [data-desc="${btns[k].dataset.desc}"]`); desc.innerHTML = d ? d.innerHTML : ""; desc.scrollTop = 0; }
     };
     const stop = () => { clearInterval(timer); timer = 0; play.innerHTML = PLAY; play.setAttribute("aria-pressed", "false"); };
     const advance = () => {
@@ -538,6 +541,7 @@
     const step = (d) => { stop(); k = (k + d + looks.length) % looks.length; part = 0; show(); };
     btns.forEach((b, i) => b.addEventListener("click", () => open(i, false)));
     $$("[data-run]").forEach((b) => b.addEventListener("click", () => open(0, true)));
+    window.ACOpenLook = (i) => open(Math.max(0, Math.min(i, looks.length - 1)), false);
     play.addEventListener("click", () => (timer ? stop() : start()));
     pair.addEventListener("click", (e) => { const t = e.target.closest(".lv-thumb"); if (t) { stop(); part = Number(t.dataset.j); show(); } });
     // clicking the big photo goes on to the next one: the close-ups of the look, then the next look
