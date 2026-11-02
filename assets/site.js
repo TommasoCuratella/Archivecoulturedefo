@@ -529,15 +529,14 @@
     const start = () => { clearInterval(timer); timer = setInterval(advance, SHOW_MS); play.innerHTML = PAUSE; play.setAttribute("aria-pressed", "true"); };
     const open = (i, run) => {
       k = i; part = 0; opener = document.activeElement; show();
-      lv.classList.add("fade"); lv.classList.remove("tilt"); lv.hidden = false; document.body.style.overflow = "hidden";
+      lv.classList.add("fade"); lv.hidden = false; document.body.style.overflow = "hidden";
       document.body.classList.add("lv-on");
-      requestAnimationFrame(() => requestAnimationFrame(() => lv.classList.add("tilt")));
       close.focus({ preventScroll: true });
       requestAnimationFrame(() => lv.classList.remove("fade"));
       if (run && !reduceMotion) start(); else stop();
     };
     const shut = () => {
-      stop(); lv.classList.add("fade"); lv.classList.remove("tilt"); document.body.classList.remove("lv-on");
+      stop(); lv.classList.add("fade"); document.body.classList.remove("lv-on");
       setTimeout(() => { lv.hidden = true; lv.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
     };
     const step = (d) => { stop(); k = (k + d + looks.length) % looks.length; part = 0; show(); };
@@ -571,13 +570,6 @@
       if (sx === null) return;
       const dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 40 && looks.length > 1) step(dx < 0 ? 1 : -1);
-    });
-    // the 3D lookbook leans a little towards the pointer, as in Explore
-    const grp = $(".lv-group", lv);
-    if (grp && document.body.classList.contains("lb-3d") && !reduceMotion) lv.addEventListener("pointermove", (e) => {
-      if (e.pointerType !== "mouse") return;
-      grp.style.setProperty("--mx", ((e.clientX / innerWidth) - 0.5).toFixed(3));
-      grp.style.setProperty("--my", ((e.clientY / innerHeight) - 0.5).toFixed(3));
     });
   }
 
