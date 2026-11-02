@@ -59,6 +59,18 @@
     if (inside && history.length > 1) { e.preventDefault(); history.back(); }
   }));
 
+
+  /* a page opened from a link always starts at the top (some browsers, and in-app previews, keep the old scroll);
+     going back still returns where you were */
+  try {
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (!location.hash && (!nav || nav.type === "navigate")) {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      const top = () => window.scrollTo(0, 0);
+      top(); requestAnimationFrame(top);
+      addEventListener("load", () => { top(); setTimeout(() => { history.scrollRestoration = "auto"; }, 300); }, { once: true });
+    }
+  } catch (e) {}
   /* ---------- lightbox: a photo opens large; arrows, swipe, Esc ---------- */
   const lb = $(".lightbox");
   let openLightbox = () => {};
