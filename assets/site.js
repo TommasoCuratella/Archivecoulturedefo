@@ -117,7 +117,13 @@
       const dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 40 && set.length > 1) step(dx < 0 ? 1 : -1);
     });
-  }
+  }  // "Full lookbook": opens the article's photographs in the lightbox, from the first
+  document.querySelectorAll("[data-lookbook]").forEach((a) => a.addEventListener("click", (e) => {
+    const imgs = [...document.querySelectorAll(".strip .ph img")];
+    if (!imgs.length) return;
+    e.preventDefault(); openLightbox(imgs, 0);
+  }));
+
 
   /* ---------- a film opens large, with its sound; Esc or a click outside closes it ---------- */
   const SOUND = (on) => on ? '<span data-l="en">Sound on</span><span data-l="it" lang="it">Audio acceso</span>' : '<span data-l="en">Sound off</span><span data-l="it" lang="it">Audio spento</span>';

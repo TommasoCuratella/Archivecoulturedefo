@@ -177,6 +177,7 @@ button:active, .back:active { transform: scale(.97); }
 .portfolio { margin-top: 36px; }
 .portfolio a { color: var(--ink); transition: color .2s ease; }
 @media (hover: hover) { .portfolio a:hover { color: var(--muted); } }
+.portfolio.lookbook + .credits { margin-top: 22px; }
 .art-meta { margin-top: 28px; color: var(--muted); }
 
 /* photographs: shown with their original colours, a quiet tone while they load */
