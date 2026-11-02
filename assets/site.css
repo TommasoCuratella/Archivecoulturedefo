@@ -755,44 +755,43 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 @media (hover: hover) { .run-show:hover { text-decoration: underline; text-underline-offset: 3px; } }
 .lv-play { bottom: 6px; left: calc(var(--gut) - 18px); }
 .lv-play[hidden] { display: none; }
-/* a lookbook: the look, its back under it, and the designer's words beside it */
-.look-view.lookbook { padding-right: calc(var(--gut) + 400px); }
-.lv-desc { position: absolute; right: calc(var(--gut) + 30px); top: 50%; transform: translateY(-50%); width: 340px; max-height: calc(100vh - 160px); overflow-y: auto; scrollbar-width: thin; }
+/* a lookbook: the look with its back under it, and the designer's words beside it, together in the middle */
 .lv-desc:empty { display: none; }
 .lv-desc-t { font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; margin-bottom: 18px; }
 .lv-desc p:not(.lv-desc-t) { text-transform: none; font-size: var(--fs-text); line-height: 1.7; letter-spacing: .02em; }
 .lv-desc p + p { margin-top: 1em; }
+.lv-group { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 64px; }
+.lv-media { height: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.lv-media { flex: 0 1 auto; }
+.lv-media .lv-stage { flex: 1 1 auto; min-height: 0; width: auto; }
+.lv-media .lv-big { height: 100%; width: auto; max-width: 52vw; }
+.lv-group .lv-desc { flex: none; width: 320px; max-height: 100%; overflow-y: auto; scrollbar-width: thin; }
+.lookbook-body .clock { display: none; }
 @media (max-width: 899px) {
-  .look-view.lookbook { padding: 52px 12px 64px; justify-content: flex-start; }
-  .look-view.lookbook .lv-stage { flex: 0 1 52vh; }
-  .lv-desc { position: static; transform: none; width: auto; max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 4px 6px 0; }
+  .lv-group { flex-direction: column; gap: 18px; justify-content: flex-start; }
+  .lv-media { height: auto; flex: 0 0 auto; }
+  .lv-media .lv-stage { height: 50vh; height: 50svh; flex: none; }
+  .lv-group .lv-desc { width: 100%; flex: 1 1 auto; min-height: 0; padding: 0 6px; }
 }
-.lv-play[aria-pressed="true"] { color: var(--ink); }
-@media (max-width: 759px) {
-  .lv-play { bottom: auto; top: 4px; left: calc(var(--gut) - 18px); }
+/* the 3D way: like an article opened in Explore */
+.lb-3d .look-view { background: rgba(255, 255, 255, .6); perspective: 1400px; perspective-origin: 50% 45%; }
+.lb-3d .lb-grid { transition: filter .5s ease, opacity .5s ease; }
+.lb-3d.lv-on .lb-grid, .lb-3d.lv-on .art-head { filter: blur(9px); opacity: .4; }
+.lb-3d.lv-on .hud.top { opacity: 0; pointer-events: none; }
+.lb-3d .lv-group { --ry: 0deg; --rx: 0deg; --mx: 0; --my: 0; transform-style: preserve-3d; transform: rotateY(calc(var(--ry) + var(--mx) * 7deg)) rotateX(calc(var(--rx) - var(--my) * 5deg)); transition: transform 1.1s cubic-bezier(.2, .7, .2, 1); }
+.lb-3d .look-view.tilt .lv-group { --ry: -9deg; --rx: 4deg; }
+.lb-3d .lv-big { box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .45); }
+.lb-3d .lv-desc { transform: translateZ(80px); }
+@media (max-width: 899px) {
+  .lv-media .lv-big { height: 100%; max-width: 92vw; }
+  .lb-3d .look-view.tilt .lv-group { --ry: -4deg; --rx: 2deg; }
+  .lb-3d .lv-desc { transform: none; }
 }
-
-/* runway photos are portrait: in a thumbnail the window sits high, on the model's face, never below the head */
-.rows .row-thumb[src*="/runway-"] { object-position: 50% 10%; }
-/* a whole film, with its controls */
-/* a whole film from a link: clean, like the films in the articles; a hairline shows where you are */
-.fl-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 10px; max-width: calc(100vw - 140px); }
-.film-long video { width: 100%; height: auto; max-width: none; max-height: none; background: #000; cursor: pointer; }
-.fl-bar { position: relative; height: 13px; cursor: pointer; }
-.fl-bar::before, .fl-fill { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 1px; background: var(--line, #ddd); }
-.fl-fill { background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); }
-.fl-row { display: flex; justify-content: space-between; gap: 24px; color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
-.fl-page { color: var(--ink); }
-@media (hover: hover) { .fl-page:hover { text-decoration: underline; text-underline-offset: 3px; } }
-.film-long .film-sound { bottom: 14px; }
-@media (max-width: 759px) { .fl-wrap { max-width: 100vw; } .film-long video { max-height: calc(100dvh - 190px); } }
-/* the look viewer on phones: quick taps are taps, not zoom or text selection */
-.look-view, .look-view button, .lv-big { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 .looks[hidden], .lv-descs[hidden] { display: none !important; }
 /* lookbook page: every photo of the shoot in a grid */
 .lookbook-page { padding: var(--top) var(--gut) 80px; }
 .lookbook-page .art-head { margin-bottom: 40px; }
-.lb-grid { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lb-grid { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .lb-cell { display: block; width: 100%; padding: 0; cursor: zoom-in; }
 .lb-cell img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; background: var(--smoke); transition: opacity .25s ease; }
 @media (hover: hover) { .lb-cell:hover img { opacity: .85; } }
