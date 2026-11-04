@@ -105,7 +105,7 @@
       setTimeout(() => { lb.hidden = true; lb.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
     };
     const step = (d) => { k = (k + d + set.length) % set.length; show(); };
-    lb.addEventListener("click", (e) => { if (e.target === lb || e.target === close) shut(); });
+    lb.addEventListener("click", (e) => { if (e.target === lb || close.contains(e.target)) shut(); });
     big.addEventListener("click", () => { if (set.length > 1) step(1); else shut(); });
     prev.addEventListener("click", () => step(-1));
     next.addEventListener("click", () => step(1));
