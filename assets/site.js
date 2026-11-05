@@ -392,7 +392,7 @@
       else if (e.key === "ArrowLeft") go(i - 1);
     });
     // [n] in the text shows that image
-    $$(".story .ref").forEach((a) => a.addEventListener("click", (e) => {
+    $$(".story .ref[data-slide]").forEach((a) => a.addEventListener("click", (e) => {
       e.preventDefault();
       go(Number(a.dataset.slide) - 1); setPaused(true);
       scrollTo({ top: Math.max(0, show.getBoundingClientRect().top + scrollY - 20), behavior: reduceMotion ? "auto" : "smooth" });
@@ -405,6 +405,21 @@
       if (performance.now() - last > SLIDE_MS) go(i + 1);
     }, 250);
   });
+
+  /* ---------- numbers in the text, e.g. [3]: open that photograph wherever the page shows it ---------- */
+  $$(".story .ref[data-fig]").forEach((a) => a.addEventListener("click", (e) => {
+    const t = document.getElementById("f-" + String(a.dataset.fig).padStart(2, "0"));
+    if (!t) return;
+    e.preventDefault();
+    if (t.classList.contains("slide")) {
+      const show = t.closest("[data-show]");
+      if (!t.classList.contains("on")) t.click();
+      if (show) scrollTo({ top: Math.max(0, show.getBoundingClientRect().top + scrollY - 20), behavior: reduceMotion ? "auto" : "smooth" });
+      return;
+    }
+    const target = $(".look-open", t) || $("img", t);
+    if (target) target.click();
+  }));
 
   /* ---------- designer timelines: a dot opens its details, one at a time ---------- */
   $$(".htl").forEach((t) => {
