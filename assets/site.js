@@ -329,6 +329,11 @@
   $$("[data-show]").forEach((show) => {
     const track = $(".track", show), slides = $$(".slide", show);
     const imgs = slides.map((s) => $("img", s));
+    // each photo takes its size from its width/height before it loads (see site.css), so Safari never leaves it at zero
+    imgs.forEach((im) => {
+      const w = Number(im.getAttribute("width")), h = Number(im.getAttribute("height"));
+      if (w && h) { im.style.aspectRatio = w + " / " + h; im.style.setProperty("--r", String(h / w)); im.style.setProperty("--h", h + "px"); }
+    });
     const single = slides.length < 2;
     const cur = $(".cur", show), playBtn = $(".play", show);
     const SLIDE_MS = 4500;

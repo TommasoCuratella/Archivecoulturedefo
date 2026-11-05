@@ -233,6 +233,9 @@ button:active, .back:active { transform: scale(.97); }
 .slide { flex: none; display: flex; flex-direction: column; opacity: .3; transition: opacity .8s ease; cursor: pointer; }
 .slide.on { opacity: 1; cursor: zoom-in; }
 .slide img { width: auto; height: auto; max-height: calc(100vh - 340px); max-height: calc(100dvh - 340px); max-width: 58vw; }
+/* every photo is given its size before it arrives: Safari does not resize a photo that lands after the page is drawn */
+.slide img[style*="--r"] { max-width: none; max-height: none; width: auto; height: min(calc(100vh - 340px), calc(58vw * var(--r)), var(--h)); height: min(calc(100dvh - 340px), calc(58vw * var(--r)), var(--h)); }
+@media (max-width: 759px) { .slide img[style*="--r"] { height: min(58vh, calc(78vw * var(--r)), var(--h)); } }
 .slide figcaption {
   width: 0; min-width: 100%; min-height: 3.4em; margin-top: 12px;
   font-size: 11px; line-height: 1.7; letter-spacing: .04em; text-transform: none; color: var(--muted);
