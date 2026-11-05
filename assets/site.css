@@ -177,6 +177,8 @@ button:active, .back:active { transform: scale(.97); }
 .portfolio { margin-top: 36px; }
 .portfolio a { color: var(--ink); transition: color .2s ease; }
 @media (hover: hover) { .portfolio a:hover { color: var(--muted); } }
+.portfolio.lookbook a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.portfolio.lookbook + .credits { margin-top: 44px; }
 .art-meta { margin-top: 28px; color: var(--muted); }
 
 /* photographs: shown with their original colours, a quiet tone while they load */
@@ -352,7 +354,8 @@ body:has(.notice-fixed) main { padding-bottom: 110px; }
   .tools { flex-direction: column; gap: 8px; }
   .search input { width: 100%; max-width: none; }
   .rows .row a { grid-template-columns: 84px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; row-gap: 0; padding: 7px 0; align-items: start; }
-  .rows .row-thumb { display: block; grid-row: 1 / 3; width: 84px; height: 63px; object-fit: cover; object-position: 50% 50%; }
+  .rows .row-thumb { display: block; grid-row: 1 / 3; width: 84px; height: 63px; object-fit: cover; object-position: 50% 15%; }
+  .rows .row-thumb[src*="martyna-agnieszka"] { object-position: 50% 6%; }
   /* the covers are mostly landscape: a 4:3 window keeps the subject in frame; the two portraits are aimed at their subject */
   .rows .row-thumb[src*="daft-punk"] { object-position: 50% 22%; }
   .rows .row-thumb[src*="raf-simons"] { object-position: 50% 12%; }
@@ -752,24 +755,32 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .run-show { color: var(--ink); padding: 4px 0; letter-spacing: inherit; }
 @media (hover: hover) { .run-show:hover { text-decoration: underline; text-underline-offset: 3px; } }
 .lv-play { bottom: 6px; left: calc(var(--gut) - 18px); }
-.lv-play[aria-pressed="true"] { color: var(--ink); }
-@media (max-width: 759px) {
-  .lv-play { bottom: auto; top: 4px; left: calc(var(--gut) - 18px); }
+.lv-play[hidden] { display: none; }
+/* a lookbook: the look with its back under it, and the designer's words beside it, together in the middle */
+.lv-desc:empty { display: none; }
+.lv-desc-t { font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; margin-bottom: 18px; }
+.lv-desc p:not(.lv-desc-t) { text-transform: none; font-size: var(--fs-text); line-height: 1.7; letter-spacing: .02em; }
+.lv-desc p + p { margin-top: 1em; }
+.lv-group { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 64px; }
+.lv-media { height: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.lv-media { flex: 0 1 auto; }
+.lv-media .lv-stage { flex: 1 1 auto; min-height: 0; width: auto; }
+.lv-media .lv-big { height: 100%; width: auto; max-width: 52vw; }
+.lv-group .lv-desc { flex: none; width: 320px; max-height: 100%; overflow-y: auto; scrollbar-width: thin; }
+.lookbook-body .clock { display: none; }
+@media (max-width: 899px) {
+  .lv-group { flex-direction: column; gap: 18px; justify-content: flex-start; }
+  .lv-media { height: auto; flex: 0 0 auto; }
+  .lv-media .lv-stage { height: 50vh; height: 50svh; flex: none; }
+  .lv-group .lv-desc { width: 100%; flex: 1 1 auto; min-height: 0; padding: 0 6px; }
 }
-
-/* runway photos are portrait: in a thumbnail the window sits high, on the model's face, never below the head */
-.rows .row-thumb[src*="/runway-"] { object-position: 50% 10%; }
-/* a whole film, with its controls */
-/* a whole film from a link: clean, like the films in the articles; a hairline shows where you are */
-.fl-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 10px; max-width: calc(100vw - 140px); }
-.film-long video { width: 100%; height: auto; max-width: none; max-height: none; background: #000; cursor: pointer; }
-.fl-bar { position: relative; height: 13px; cursor: pointer; }
-.fl-bar::before, .fl-fill { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 1px; background: var(--line, #ddd); }
-.fl-fill { background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); }
-.fl-row { display: flex; justify-content: space-between; gap: 24px; color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
-.fl-page { color: var(--ink); }
-@media (hover: hover) { .fl-page:hover { text-decoration: underline; text-underline-offset: 3px; } }
-.film-long .film-sound { bottom: 14px; }
-@media (max-width: 759px) { .fl-wrap { max-width: 100vw; } .film-long video { max-height: calc(100dvh - 190px); } }
-/* the look viewer on phones: quick taps are taps, not zoom or text selection */
-.look-view, .look-view button, .lv-big { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+@media (max-width: 899px) { .lv-media .lv-big { height: 100%; max-width: 92vw; } }
+.looks[hidden], .lv-descs[hidden] { display: none !important; }
+/* lookbook page: every photo of the shoot in a grid */
+.lookbook-page { padding: var(--top) var(--gut) 80px; }
+.lookbook-page .art-head { margin-bottom: 40px; }
+.lb-grid { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.lb-cell { display: block; width: 100%; padding: 0; cursor: zoom-in; }
+.lb-cell img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; background: var(--smoke); transition: opacity .25s ease; }
+@media (hover: hover) { .lb-cell:hover img { opacity: .85; } }
+@media (max-width: 759px) { .lb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .lookbook-page .art-head { margin-bottom: 24px; } }

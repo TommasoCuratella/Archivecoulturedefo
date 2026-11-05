@@ -59,6 +59,18 @@
     if (inside && history.length > 1) { e.preventDefault(); history.back(); }
   }));
 
+
+  /* a page opened from a link always starts at the top (some browsers, and in-app previews, keep the old scroll);
+     going back still returns where you were */
+  try {
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (!location.hash && (!nav || nav.type === "navigate")) {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      const top = () => window.scrollTo(0, 0);
+      top(); requestAnimationFrame(top);
+      addEventListener("load", () => { top(); setTimeout(() => { history.scrollRestoration = "auto"; }, 300); }, { once: true });
+    }
+  } catch (e) {}
   /* ---------- lightbox: a photo opens large; arrows, swipe, Esc ---------- */
   const lb = $(".lightbox");
   let openLightbox = () => {};
@@ -93,7 +105,7 @@
       setTimeout(() => { lb.hidden = true; lb.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
     };
     const step = (d) => { k = (k + d + set.length) % set.length; show(); };
-    lb.addEventListener("click", (e) => { if (e.target === lb || e.target === close) shut(); });
+    lb.addEventListener("click", (e) => { if (e.target === lb || close.contains(e.target)) shut(); });
     big.addEventListener("click", () => { if (set.length > 1) step(1); else shut(); });
     prev.addEventListener("click", () => step(-1));
     next.addEventListener("click", () => step(1));
@@ -117,7 +129,14 @@
       const dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 40 && set.length > 1) step(dx < 0 ? 1 : -1);
     });
-  }
+  }  // "Full lookbook": opens the article's photographs in the lightbox, from the first
+  document.querySelectorAll("[data-lookbook]").forEach((a) => a.addEventListener("click", (e) => {
+    if (window.ACOpenLook) { e.preventDefault(); window.ACOpenLook(0); return; }
+    const imgs = [...document.querySelectorAll(".strip .ph img")];
+    if (!imgs.length) return;
+    e.preventDefault(); openLightbox(imgs, 0);
+  }));
+
 
   /* ---------- a film opens large, with its sound; Esc or a click outside closes it ---------- */
   const SOUND = (on) => on ? '<span data-l="en">Sound on</span><span data-l="it" lang="it">Audio acceso</span>' : '<span data-l="en">Sound off</span><span data-l="it" lang="it">Audio spento</span>';
@@ -252,7 +271,7 @@
   $$("[data-strip]").forEach((strip) => {
     const figs = $$(".ph", strip), imgs = figs.map((f) => $("img", f)).filter(Boolean);   // a film in the strip is not a photo
     imgs.forEach((im, n) => {
-      im.addEventListener("click", () => openLightbox(imgs, n));
+      im.addEventListener("click", () => { if (im.dataset.look && window.ACOpenLook) window.ACOpenLook(Number(im.dataset.look)); else openLightbox(imgs, n); });
     });
     // a film plays silently on a loop; clicking it (or its label) turns the sound on and off
     $$(".vid", strip).forEach((fig) => {
@@ -479,6 +498,7 @@
   if (looksEl && lv) {
     const btns = $$(".look-open", looksEl), big = $(".lv-big", lv), pair = $(".lv-pair", lv);
     const cnt = $(".lv-count", lv), prev = $(".lv-prev", lv), next = $(".lv-next", lv), close = $(".lv-close", lv), play = $(".lv-play", lv);
+    const desc = $(".lv-desc", lv);
     const looks = btns.map((b) => [b.dataset.full].concat(b.dataset.details ? b.dataset.details.split("|") : []));
     const seq = []; looks.forEach((l, i) => l.forEach((_, j) => seq.push([i, j])));   // every photo, in order
     const SHOW_MS = 2600;
@@ -510,6 +530,7 @@
       } else { pair.innerHTML = ""; pair.hidden = true; }
       cnt.textContent = String(k + 1).padStart(2, "0") + " / " + String(looks.length).padStart(2, "0");
       prev.hidden = next.hidden = looks.length < 2;
+      if (desc) { const d = document.querySelector(`.lv-descs [data-desc="${btns[k].dataset.desc}"]`); desc.innerHTML = d ? d.innerHTML : ""; desc.scrollTop = 0; }
     };
     const stop = () => { clearInterval(timer); timer = 0; play.innerHTML = PLAY; play.setAttribute("aria-pressed", "false"); };
     const advance = () => {
@@ -521,17 +542,21 @@
     const open = (i, run) => {
       k = i; part = 0; opener = document.activeElement; show();
       lv.classList.add("fade"); lv.hidden = false; document.body.style.overflow = "hidden";
+      document.body.classList.add("lv-on");
       close.focus({ preventScroll: true });
       requestAnimationFrame(() => lv.classList.remove("fade"));
       if (run && !reduceMotion) start(); else stop();
     };
     const shut = () => {
-      stop(); lv.classList.add("fade");
+      stop(); lv.classList.add("fade"); document.body.classList.remove("lv-on");
       setTimeout(() => { lv.hidden = true; lv.classList.remove("fade"); big.removeAttribute("src"); document.body.style.overflow = ""; if (opener && opener.focus) opener.focus({ preventScroll: true }); }, 200);
     };
     const step = (d) => { stop(); k = (k + d + looks.length) % looks.length; part = 0; show(); };
     btns.forEach((b, i) => b.addEventListener("click", () => open(i, false)));
     $$("[data-run]").forEach((b) => b.addEventListener("click", () => open(0, true)));
+    window.ACOpenLook = (i, j) => { open(Math.max(0, Math.min(i, looks.length - 1)), false); if (j) { part = Math.min(j, looks[k].length - 1); show(); } };
+    // a lookbook page: every photo in a grid opens its look (front or back) in the viewer
+    $$("[data-open-look]").forEach((b) => b.addEventListener("click", () => window.ACOpenLook(Number(b.dataset.openLook), Number(b.dataset.openPart || 0))));
     play.addEventListener("click", () => (timer ? stop() : start()));
     pair.addEventListener("click", (e) => { const t = e.target.closest(".lv-thumb"); if (t) { stop(); part = Number(t.dataset.j); show(); } });
     // clicking the big photo goes on to the next one: the close-ups of the look, then the next look

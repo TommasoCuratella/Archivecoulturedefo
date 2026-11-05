@@ -524,4 +524,22 @@
     <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/73-2.webp</image:loc></image:image>
     <image:image><image:loc>https://archivecoulture.com/images/runway-ann-demeulemeester-spring-summer-1998/74.webp</image:loc></image:image>
   </url>
+  <url>
+    <loc>https://archivecoulture.com/archive/martyna-agnieszka-the-third-world-of-women</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/designers/martyna-agnieszka</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://archivecoulture.com/archive/martyna-agnieszka-the-third-world-of-women/lookbook</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
 </urlset>

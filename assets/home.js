@@ -9,7 +9,7 @@
   // Phrases that surface as the cursor moves; edit freely.
   const PHRASES = [
     "thank you to be part of the archive",
-    "archive clothes for absorbed people",
+    "fashion archive for absorbed people",
   ];
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
