@@ -572,17 +572,12 @@ body:has(.notice-fixed) main { padding-bottom: 110px; }
 .js .strip .ph img { transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
 @media (max-width: 959px) { .js .strip .ph.wait img { transform: translateX(18px); } }
 
-/* moving between pages: a short cross-fade where the browser allows it */
-@view-transition { navigation: auto; }
-::view-transition-old(root) { animation: fade .18s ease-in reverse both; }
-::view-transition-new(root) { animation: fade .26s ease-out both; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }
   .js .page *, .js .menu *, .js .menu, .js .hud, .js .htl-info { animation-name: fade !important; animation-duration: .2s !important; animation-delay: 0s !important; }
   .js .strip .ph.wait img { opacity: 0; transform: none; }
   .track, .slide, .peek, .exp-group { transition: none !important; }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 
 /* about */
@@ -755,6 +750,27 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .run-show { color: var(--ink); padding: 4px 0; letter-spacing: inherit; }
 @media (hover: hover) { .run-show:hover { text-decoration: underline; text-underline-offset: 3px; } }
 .lv-play { bottom: 6px; left: calc(var(--gut) - 18px); }
+.lv-play[aria-pressed="true"] { color: var(--ink); }
+@media (max-width: 759px) {
+  .lv-play { bottom: auto; top: 4px; left: calc(var(--gut) - 18px); }
+}
+
+/* runway photos are portrait: in a thumbnail the window sits high, on the model's face, never below the head */
+.rows .row-thumb[src*="/runway-"] { object-position: 50% 10%; }
+/* a whole film, with its controls */
+/* a whole film from a link: clean, like the films in the articles; a hairline shows where you are */
+.fl-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 10px; max-width: calc(100vw - 140px); }
+.film-long video { width: 100%; height: auto; max-width: none; max-height: none; background: #000; cursor: pointer; }
+.fl-bar { position: relative; height: 13px; cursor: pointer; }
+.fl-bar::before, .fl-fill { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 1px; background: var(--line, #ddd); }
+.fl-fill { background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); }
+.fl-row { display: flex; justify-content: space-between; gap: 24px; color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
+.fl-page { color: var(--ink); }
+@media (hover: hover) { .fl-page:hover { text-decoration: underline; text-underline-offset: 3px; } }
+.film-long .film-sound { bottom: 14px; }
+@media (max-width: 759px) { .fl-wrap { max-width: 100vw; } .film-long video { max-height: calc(100dvh - 190px); } }
+/* the look viewer on phones: quick taps are taps, not zoom or text selection */
+.look-view, .look-view button, .lv-big { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
 .lv-play[hidden] { display: none; }
 /* a lookbook: the look with its back under it, and the designer's words beside it, together in the middle */
 .lv-desc:empty { display: none; }

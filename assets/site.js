@@ -363,8 +363,16 @@
     slides.forEach((sl, n) => sl.addEventListener("click", () => { if (n !== i) { go(n); setPaused(true); } else openLightbox(imgs, n); }));
     // iPhone Safari never loads "lazy" photos that sit off-screen inside the moving track: load them all now,
     // and if one fails, ask for it again when it comes into view
-    imgs.forEach((im) => { im.loading = "eager"; im.addEventListener("load", place); });
-    const retry = (im) => { if (im && im.complete && !im.naturalWidth && !im.dataset.retried) { im.dataset.retried = "1"; const s = im.src; im.src = ""; im.src = s; } };
+    // a photo that did not arrive is asked for again at a fresh address (Safari keeps a failed answer for the same one), at most twice
+    const again = (im) => {
+      const n = Number(im.dataset.tries || 0);
+      if (n >= 2) return;
+      im.dataset.tries = String(n + 1);
+      im.src = im.getAttribute("src").split("?")[0] + "?r=" + Date.now();
+    };
+    imgs.forEach((im) => { im.loading = "eager"; im.addEventListener("load", place); im.addEventListener("error", () => again(im)); });
+    const retry = (im) => { if (im && im.complete && !im.naturalWidth) again(im); };
+    addEventListener("load", () => { imgs.forEach(retry); place(); }, { once: true });
     addEventListener("resize", place);
     let sx = null;
     show.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
