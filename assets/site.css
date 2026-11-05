@@ -572,17 +572,12 @@ body:has(.notice-fixed) main { padding-bottom: 110px; }
 .js .strip .ph img { transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
 @media (max-width: 959px) { .js .strip .ph.wait img { transform: translateX(18px); } }
 
-/* moving between pages: a short cross-fade where the browser allows it */
-@view-transition { navigation: auto; }
-::view-transition-old(root) { animation: fade .18s ease-in reverse both; }
-::view-transition-new(root) { animation: fade .26s ease-out both; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }
   .js .page *, .js .menu *, .js .menu, .js .hud, .js .htl-info { animation-name: fade !important; animation-duration: .2s !important; animation-delay: 0s !important; }
   .js .strip .ph.wait img { opacity: 0; transform: none; }
   .track, .slide, .peek, .exp-group { transition: none !important; }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 
 /* about */
