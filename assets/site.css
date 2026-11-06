@@ -803,3 +803,19 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .lb-cell img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; background: var(--smoke); transition: opacity .25s ease; }
 @media (hover: hover) { .lb-cell:hover img { opacity: .85; } }
 @media (max-width: 759px) { .lb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .lookbook-page .art-head { margin-bottom: 24px; } }
+
+/* full interview: our question in ink, the answer underneath, numbered like the archive */
+.interview-page { padding: var(--top) var(--gut) 80px; }
+.interview-page .art-head { margin-bottom: 28px; }
+.qa-intro { max-width: 640px; color: var(--muted); font-size: var(--fs-small, 12px); letter-spacing: .02em; line-height: 1.7; margin-bottom: 56px; }
+.qa-list { list-style: none; max-width: 640px; }
+.qa { display: grid; grid-template-columns: 44px 1fr; margin-bottom: 52px; }
+.qa-n { color: var(--muted); font-size: 11px; letter-spacing: .12em; padding-top: 3px; }
+.qa-q { font-weight: 400; line-height: 1.65; margin-bottom: 14px; }
+.qa-a p { line-height: 1.75; margin-bottom: 1em; }
+.qa-a p:last-child { margin-bottom: 0; }
+.interview-page .qa-back { max-width: 640px; margin-top: 8px; padding-left: 44px; }
+@media (max-width: 759px) { .qa { grid-template-columns: 32px 1fr; margin-bottom: 40px; } .interview-page .qa-back { padding-left: 32px; } .qa-intro { margin-bottom: 40px; } }
+.interview-page p, .interview-page .qa-a p { text-transform: none; letter-spacing: var(--tr-text); font-size: var(--fs-text); }
+.interview-page .qa-intro { font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
+.interview-page .qa-back { text-transform: uppercase; letter-spacing: var(--tr-ui); font-size: var(--fs-ui); }
