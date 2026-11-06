@@ -804,18 +804,26 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 @media (hover: hover) { .lb-cell:hover img { opacity: .85; } }
 @media (max-width: 759px) { .lb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .lookbook-page .art-head { margin-bottom: 24px; } }
 
-/* full interview: our question in ink, the answer underneath, numbered like the archive */
-.interview-page { padding: var(--top) var(--gut) 80px; }
-.interview-page .art-head { margin-bottom: 28px; }
-.qa-intro { max-width: 640px; color: var(--muted); font-size: var(--fs-small, 12px); letter-spacing: .02em; line-height: 1.7; margin-bottom: 56px; }
-.qa-list { list-style: none; max-width: 640px; }
-.qa { display: grid; grid-template-columns: 44px 1fr; margin-bottom: 52px; }
-.qa-n { color: var(--muted); font-size: 11px; letter-spacing: .12em; padding-top: 3px; }
-.qa-q { font-weight: 400; line-height: 1.65; margin-bottom: 14px; }
-.qa-a p { line-height: 1.75; margin-bottom: 1em; }
-.qa-a p:last-child { margin-bottom: 0; }
-.interview-page .qa-back { max-width: 640px; margin-top: 8px; padding-left: 44px; }
-@media (max-width: 759px) { .qa { grid-template-columns: 32px 1fr; margin-bottom: 40px; } .interview-page .qa-back { padding-left: 32px; } .qa-intro { margin-bottom: 40px; } }
-.interview-page p, .interview-page .qa-a p { text-transform: none; letter-spacing: var(--tr-text); font-size: var(--fs-text); }
-.interview-page .qa-intro { font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
-.interview-page .qa-back { text-transform: uppercase; letter-spacing: var(--tr-ui); font-size: var(--fs-ui); }
+/* full interview: one question per row — number, question, answer — with air between them */
+.interview-page { padding: var(--top) var(--gut) 96px; }
+.interview-page .art-head { margin-bottom: 20px; }
+.interview-page .qa-intro { color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; margin-bottom: 64px; }
+.qa-list { list-style: none; max-width: 1180px; border-bottom: 1px solid #e6e6e6; }
+.qa { display: grid; grid-template-columns: 56px minmax(0, 4fr) minmax(0, 7fr); gap: 0 56px; padding: 48px 0 52px; border-top: 1px solid #e6e6e6; align-items: start; }
+.qa > div { display: contents; }
+.qa-n { color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); padding-top: 4px; }
+.interview-page .qa-q { font-weight: 400; font-size: var(--fs-text); line-height: 1.7; letter-spacing: var(--tr-text); text-transform: none; text-wrap: pretty; }
+.qa-a { max-width: 720px; }
+.interview-page .qa-q { position: sticky; top: 84px; }
+.interview-page .qa-a p { font-size: var(--fs-text); line-height: 1.85; letter-spacing: var(--tr-text); text-transform: none; margin-bottom: 1.1em; }
+.interview-page .qa-a p:last-child { margin-bottom: 0; }
+.interview-page .qa-back { margin-top: 48px; text-transform: uppercase; letter-spacing: var(--tr-ui); font-size: var(--fs-ui); }
+@media (max-width: 899px) {
+  .qa { grid-template-columns: minmax(0, 1fr); padding: 30px 0 36px; }
+  .qa-n { padding: 0 0 10px; }
+  .interview-page .qa-q { position: static; }
+  .qa-a { margin-top: 16px; }
+  .interview-page .qa-intro { margin-bottom: 40px; }
+}
+/* no clock on articles, biographies and the interview: it sat on top of the text */
+body:has(main.article) .clock-fixed, body:has(.interview-page) .clock-fixed { display: none; }
