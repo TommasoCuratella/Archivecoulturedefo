@@ -453,13 +453,21 @@
         ? (lang() === "it" ? `${shown} di ${rows.length}` : `${shown} of ${rows.length}`) : "";
       document.dispatchEvent(new Event("ac:rows"));
     }
+    // Runways on their own read as a timeline: by the year and season of the show (data-order, 1998.1 = S/S 1998,
+    // 2002.2 = F/W 2002), oldest first. Leaving Runways brings back the order chosen with Sort
+    let sortMode = "date";
+    const orig = new Map(rows.map((r, i) => [r.li, i]));   // ties keep the page's own order
     function sort(mode) {
+      if (mode) sortMode = mode;
+      const byShow = cat === "runway";
       const lis = $$(".row", rowsEl);
-      lis.sort((a, b) => mode === "az"
+      lis.sort((a, b) => (byShow
+        ? (parseFloat(a.dataset.order) || 9999) - (parseFloat(b.dataset.order) || 9999)
+        : sortMode === "az"
         ? a.dataset.title.localeCompare(b.dataset.title, "en", { sensitivity: "base" })
-        : b.dataset.date.localeCompare(a.dataset.date));
+        : b.dataset.date.localeCompare(a.dataset.date)) || orig.get(a) - orig.get(b));
       lis.forEach((li) => rowsEl.appendChild(li));
-      $$("[data-sort]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sort === mode)));
+      $$("[data-sort]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sort === sortMode)));
       document.dispatchEvent(new Event("ac:rows"));
     }
     input.addEventListener("focus", loadFull, { once: true });
@@ -490,7 +498,9 @@
       catOpts.addEventListener("keydown", (e) => { if (e.key === "Escape") { setCats(false); catToggle.focus(); } });
     }
     catBtns.forEach((b) => b.addEventListener("click", () => {
+      const was = cat;
       cat = b.dataset.cat;
+      if ((was === "runway") !== (cat === "runway")) sort();
       setLevel(); filter();
       // Fashion and Runways keep the menu open (their own line, and the brand index link), and so does All on the
       // Fashion line (it brings the first line back); the others close it
