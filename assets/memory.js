@@ -178,13 +178,14 @@
       e.animate([{ opacity: 0, transform: "scale(1)" }, { opacity: op, transform: "scale(1.025)", offset: 0.12 }, { opacity: 0, transform: `scale(${sc})`, filter: "blur(3px)" }],
         { duration: 1700, delay, easing: "cubic-bezier(.2,.6,.3,1)", fill: "both" }).finished.then(() => e.remove(), () => {});
     });
-    // stays 4 seconds (a little longer if the text is long), then fades away and the next one comes
-    const hold = 4000 + Math.min(4000, Math.max(0, len - 160) * 10);
+    // on screen about 5 seconds in all (up to 6 if the text is long): enough to read it, short enough not to wait,
+    // then it fades away and the next one comes
+    const hold = 3800 + Math.min(1200, Math.max(0, len - 160) * 4);
     later(hold, () => {
-      item.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(5px)" }], { duration: 1200, easing: "ease-out", fill: "forwards" })
+      item.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(5px)" }], { duration: 900, easing: "ease-out", fill: "forwards" })
         .finished.then(() => item.remove(), () => {});
     });
-    later(hold + 1450, next);
+    later(hold + 1000, next);
   }
   function startWall() {
     stopWall();
@@ -197,7 +198,7 @@
     stopWall();
     wall.hidden = true; again.hidden = true;
     writeEl.hidden = false; writeEl.classList.remove("out");
-    skip.hidden = !local.sent();
+    skip.hidden = false;   // everyone can enter the memories, with or without writing one
     err.hidden = true;
   }
   function toWall() {

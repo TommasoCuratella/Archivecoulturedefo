@@ -58,6 +58,9 @@ input, textarea { caret-color: var(--ink); }
 /* two languages live in the markup; only the chosen one shows */
 html:not([data-lang="it"]) [data-l="it"],
 html[data-lang="it"] [data-l="en"] { display: none !important; }
+/* English only for now: the IT / EN switch is hidden (site.js always sets English).
+   To bring Italian back, delete this line and set ENGLISH_ONLY = false in site.js */
+.langs { display: none !important; }
 
 .sr-only {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -166,7 +169,7 @@ button:active, .back:active { transform: scale(.97); }
 
 /* credits: grey capitals on the left, the name in black */
 .credits, .specs { display: grid; grid-template-columns: max-content 1fr; column-gap: 28px; row-gap: 2px; align-items: baseline; }
-.credits { margin-top: 56px; }
+.credits { margin-top: 32px; }
 .specs { margin-top: 36px; }
 .credits dt, .specs dt { color: var(--muted); }
 .credits dd, .specs dd { color: var(--ink); text-transform: none; letter-spacing: .04em; font-size: 12px; }
@@ -174,12 +177,12 @@ button:active, .back:active { transform: scale(.97); }
 .credits dt a { color: inherit; }
 .credits .cred-gap { margin-top: 22px; }   /* a row set a little apart from the people (e.g. Files) */
 @media (hover: hover) { .credits dd a:hover { color: var(--muted); } .credits dt a:hover { color: var(--ink); } }
-.portfolio { margin-top: 36px; }
+.portfolio { margin-top: 30px; }
 .portfolio a { color: var(--ink); transition: color .2s ease; }
 @media (hover: hover) { .portfolio a:hover { color: var(--muted); } }
 .portfolio.lookbook a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
-.portfolio.lookbook + .credits { margin-top: 44px; }
-.art-meta { margin-top: 28px; color: var(--muted); }
+.portfolio + .credits, .portfolio.lookbook + .credits { margin-top: 26px; }
+.art-meta { margin-top: 72px; color: var(--muted); }   /* the end of the page: set well apart from the credits */
 
 /* photographs: shown with their original colours, a quiet tone while they load */
 .ph img, .slide img, .row-thumb { background: var(--smoke); }
@@ -303,13 +306,17 @@ button:active, .back:active { transform: scale(.97); }
 .tools { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 36px; margin-bottom: 40px; color: var(--muted); }
 .search input {
   font: inherit; letter-spacing: inherit; text-transform: uppercase; color: var(--ink);
-  width: 240px; max-width: 70vw; padding: 2px 0 4px; background: none;
+  width: 240px; max-width: 70vw; height: 27.9px; padding: 2px 0 4px; line-height: 20.9px; box-sizing: border-box; background: none;
   border: 0; border-bottom: 1px solid var(--muted); border-radius: 0; outline: none;
   -webkit-appearance: none; appearance: none; transition: border-color .2s ease;
 }
 .search input::placeholder { color: var(--muted); opacity: 1; }
 .search input:focus-visible { border-bottom-color: var(--ink); outline: none; }
 .search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.search input::-webkit-search-decoration { -webkit-appearance: none; }
+/* Archive: Sort sits next to Search, its letters standing on the search line */
+@media (min-width: 760px) { .tools > .search + .seg { position: relative; top: var(--sort-drop, 11px); } }
+
 .seg { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .55em; }
 .seg-l { margin-right: .6em; }
 .seg button, .seg a { padding: 4px 0; }
@@ -325,13 +332,15 @@ button:active, .back:active { transform: scale(.97); }
 /* desktop: the list leaves the right side to the photograph of the entry in focus */
 @media (hover: hover) and (min-width: 960px) {
   .index .rows { max-width: calc(100% - min(28vw, 400px) - 8vw); }
-  .index .row a { grid-template-columns: minmax(0, 1fr) 110px 96px; }
+  .index .row a { grid-template-columns: minmax(0, 1fr) 180px 96px; }
   .index .letters .row a { grid-template-columns: minmax(0, 1fr) 150px; }
 }
 .row[hidden] { display: none; }
-.row a { display: grid; grid-template-columns: minmax(0, 1fr) 150px 100px; column-gap: 28px; align-items: baseline; padding: 5px 0; }
+.row a { display: grid; grid-template-columns: minmax(0, 1fr) 180px 100px; column-gap: 28px; align-items: baseline; padding: 5px 0; }
 .row .t { color: var(--ink); transition: color .2s ease; }
 .row .c, .row .d { color: var(--muted); }
+/* designer and date always on one line */
+.row .c, .row .d { white-space: nowrap; }
 .row-thumb { display: none; }
 /* while the pointer is on one entry, the others step back */
 @media (hover: hover) {
@@ -356,16 +365,17 @@ body:has(.notice-fixed) main { padding-bottom: 110px; }
 @media (max-width: 759px) {
   .tools { flex-direction: column; gap: 8px; }
   .search input { width: 100%; max-width: none; }
-  .rows .row a { grid-template-columns: 84px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; row-gap: 0; padding: 7px 0; align-items: start; }
+  .rows .row a { grid-template-columns: 84px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 14px; row-gap: 0; padding: 7px 0; align-items: start; }
   .rows .row-thumb { display: block; grid-row: 1 / 3; width: 84px; height: 63px; object-fit: cover; object-position: 50% 15%; }
   .rows .row-thumb[src*="martyna-agnieszka"] { object-position: 50% 6%; }
   /* the covers are mostly landscape: a 4:3 window keeps the subject in frame; the two portraits are aimed at their subject */
   .rows .row-thumb[src*="daft-punk"] { object-position: 50% 22%; }
   .rows .row-thumb[src*="raf-simons"] { object-position: 50% 12%; }
-  .rows .row .t { grid-column: 2; line-height: 1.7; }
-  .rows .row .c, .rows .row .d { grid-column: 2; display: inline; }
-  .rows .row .c { grid-row: 2; }
-  .rows .row .d { grid-row: 2; justify-self: end; }
+  .rows .row .t { grid-column: 2 / 4; line-height: 1.7; }
+  .rows .row .c, .rows .row .d { display: block; white-space: nowrap; }
+  /* category / designer and date stay on one line */
+  .rows .row .c { grid-column: 2; grid-row: 2; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .rows .row .d { grid-column: 3; grid-row: 2; justify-self: end; }
   .letters .row a { grid-template-columns: 1fr; }
   .letters .row .c { grid-column: 1; justify-self: start; }
 }
@@ -803,3 +813,57 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .lb-cell img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; background: var(--smoke); transition: opacity .25s ease; }
 @media (hover: hover) { .lb-cell:hover img { opacity: .85; } }
 @media (max-width: 759px) { .lb-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .lookbook-page .art-head { margin-bottom: 24px; } }
+
+
+/* no clock on articles */
+body:has(main.article) .clock-fixed, body:has(main.article) .foot-clock, body:has(main.runway-show) .clock-fixed, body:has(main.runway-show) .foot-clock, body:has(main.interview-page) .clock-fixed, body:has(main.interview-page) .foot-clock, body:has(main.lookbook-page) .clock-fixed, body:has(main.lookbook-page) .foot-clock { display: none !important; }
+
+/* full interview: one question per row — number, question, answer — with air between them */
+.interview-page { padding: var(--top) var(--gut) 96px; }
+.interview-page .art-head { margin-bottom: 20px; }
+.interview-page .qa-intro { color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; margin-bottom: 64px; }
+.qa-list { list-style: none; max-width: none; border-bottom: 1px solid #e6e6e6; }
+.qa { display: grid; grid-template-columns: 56px minmax(0, 4fr) minmax(0, 7fr); gap: 0 56px; padding: 48px 0 52px; border-top: 1px solid #e6e6e6; align-items: start; }
+.qa > div { display: contents; }
+.qa-n { color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); padding-top: 4px; }
+.interview-page .qa-q { font-weight: 400; font-size: var(--fs-text); line-height: 1.7; letter-spacing: var(--tr-text); text-transform: none; text-wrap: pretty; }
+.qa-a { max-width: 760px; }
+.interview-page .qa-q { position: sticky; top: 84px; }
+.interview-page .qa-a p { font-size: var(--fs-text); line-height: 1.85; letter-spacing: var(--tr-text); text-transform: none; margin-bottom: 1.1em; }
+.interview-page .qa-a p:last-child { margin-bottom: 0; }
+.interview-page .qa-back { margin-top: 48px; text-transform: uppercase; letter-spacing: var(--tr-ui); font-size: var(--fs-ui); }
+@media (max-width: 899px) {
+  .qa { grid-template-columns: minmax(0, 1fr); padding: 30px 0 36px; }
+  .qa-n { padding: 0 0 10px; }
+  .interview-page .qa-q { position: static; }
+  .qa-a { margin-top: 16px; }
+  .interview-page .qa-intro { margin-bottom: 40px; }
+}
+
+/* interviews: lines across the page, text kept to a readable width with air on the right */
+.qa { padding-right: clamp(0px, 9vw, 180px); }
+@media (max-width: 899px) { .qa { padding-right: 0; } }
+/* interviews held in Italian: a small IT / EN switch under the intro changes only questions and answers */
+.qa-switch { display: flex; align-items: baseline; gap: .55em; margin: -48px 0 40px; color: var(--muted); font-size: var(--fs-ui); letter-spacing: var(--tr-ui); text-transform: uppercase; }
+.qa-switch button { padding: 4px 0; color: var(--muted); }
+.qa-switch button[aria-pressed="true"] { color: var(--ink); }
+@media (hover: hover) { .qa-switch button:hover { color: var(--ink); } }
+[data-qa-lang="it"] [data-qa="en"], [data-qa-lang="en"] [data-qa="it"] { display: none !important; }
+@media (max-width: 899px) { .qa-switch { margin: -24px 0 40px; } }
+
+/* in-text figure */
+.story .inline-fig{margin:2.2em 0}
+.story .inline-fig img{display:block;width:100%;height:auto}
+
+/* articles, runways, pieces and interviews: no clock in the corner */
+body:has(main.article, main.runway-show, main.product, main.interview-page, main.lookbook-page) .clock-fixed,
+body:has(main.article, main.runway-show, main.product, main.interview-page, main.lookbook-page) .foot-clock { display: none !important; }
+/* the film controls: no box around Close or the sound when the film opens */
+.film-close:focus, .film-sound:focus, .fl-bar:focus { outline: none; }
+.film-close:focus-visible, .film-sound:focus-visible { outline: none; color: var(--ink); }
+/* English only: interviews open in English, without the IT / EN switch */
+.qa-switch { display: none !important; }
+/* a brand's runway list: no clock and no footer line at the bottom */
+body:has(main [data-runways]) .clock-fixed,
+body:has(main [data-runways]) .foot,
+body:has(main [data-runways]) .brand-fixed { display: none !important; }

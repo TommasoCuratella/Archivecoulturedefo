@@ -4,6 +4,7 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const zoom = () => parseFloat(getComputedStyle(doc).zoom) || 1;   // > 1 on wide screens (see site.css)
 
   /* ---------- IT / EN for the whole site (remembered per visitor) ---------- */
   const lang = () => (doc.getAttribute("data-lang") === "it" ? "it" : "en");
@@ -20,7 +21,10 @@
     document.dispatchEvent(new CustomEvent("ac:lang", { detail: l }));
   }
   $$("[data-set-lang]").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.setLang)));
-  setLang(lang());
+  // English only for now: the Italian texts stay in the pages, hidden. To bring Italian back,
+  // change ENGLISH_ONLY to false (and remove the matching block at the top of site.css)
+  const ENGLISH_ONLY = true;
+  setLang(ENGLISH_ONLY ? "en" : lang());
   window.AC = { lang, reduceMotion };
 
   /* ---------- menu (phones) ---------- */
@@ -95,7 +99,7 @@
         if (reduceMotion || !to.width || !from.width) return;
         // the photo grows from where it sits on the page
         big.animate([
-          { transform: `translate(${from.left + from.width / 2 - (to.left + to.width / 2)}px, ${from.top + from.height / 2 - (to.top + to.height / 2)}px) scale(${from.width / to.width})` },
+          { transform: `translate(${(from.left + from.width / 2 - (to.left + to.width / 2)) / zoom()}px, ${(from.top + from.height / 2 - (to.top + to.height / 2)) / zoom()}px) scale(${from.width / to.width})` },
           { transform: "none" },
         ], { duration: 420, easing: "cubic-bezier(.23, 1, .32, 1)" });
       });
@@ -129,7 +133,9 @@
       const dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 40 && set.length > 1) step(dx < 0 ? 1 : -1);
     });
-  }  // "Full lookbook": opens the article's photographs in the lightbox, from the first
+  }
+  window.ACOpenLightbox = (imgs, n) => openLightbox(imgs, n);   // used by the Available pages
+  // "Full lookbook": opens the article's photographs in the lightbox, from the first
   document.querySelectorAll("[data-lookbook]").forEach((a) => a.addEventListener("click", (e) => {
     if (window.ACOpenLook) { e.preventDefault(); window.ACOpenLook(0); return; }
     const imgs = [...document.querySelectorAll(".strip .ph img")];
@@ -189,23 +195,37 @@
       + '<button type="button" class="vid-sound film-sound" aria-pressed="true">' + SOUND(true) + '</button>';
     const v = $("video", box), cls = $(".film-close", box), snd = $(".film-sound", box);
     const bar = $(".fl-bar", box), fill = $(".fl-fill", box), time = $(".fl-time", box);
-    if (a.dataset.poster) v.poster = a.dataset.poster;
-    v.src = a.getAttribute("href");
-    document.body.appendChild(box);
-    document.body.style.overflow = "hidden";
-    v.muted = false;
-    v.play().catch(() => { v.muted = true; snd.setAttribute("aria-pressed", "false"); snd.innerHTML = SOUND(false); v.play().catch(() => {}); });
-    requestAnimationFrame(() => box.classList.remove("fade"));
-    cls.focus({ preventScroll: true });
-    // the film as large as the screen allows, whatever its shape (old 4:3 tapes, 16:9, portrait)
+    // the film as large as the screen allows, whatever its shape (old 4:3 tapes, 16:9, portrait).
+    // It takes its size straight away from the poster (or 16:9), so it never opens small while the file is still loading
     const wrap = $(".fl-wrap", box);
+    let ratio = 16 / 9;
     const fit = () => {
-      if (!v.videoWidth) return;
-      const small = innerWidth < 760, maxW = innerWidth - (small ? 0 : 140), maxH = innerHeight - (small ? 190 : 170);
-      wrap.style.width = Math.round(Math.min(maxW, maxH * v.videoWidth / v.videoHeight)) + "px";
+      if (v.videoWidth) ratio = v.videoWidth / v.videoHeight;
+      const small = innerWidth < 760, maxW = innerWidth / zoom() - (small ? 0 : 140), maxH = innerHeight / zoom() - (small ? 190 : 170);
+      wrap.style.width = Math.round(Math.min(maxW, maxH * ratio)) + "px";
+      v.style.aspectRatio = String(ratio);
     };
     v.addEventListener("loadedmetadata", fit);
     addEventListener("resize", fit);
+    if (a.dataset.poster) {
+      v.poster = a.dataset.poster;
+      const pi = new Image();
+      pi.onload = () => { if (!v.videoWidth && pi.naturalWidth) { ratio = pi.naturalWidth / pi.naturalHeight; fit(); } };
+      pi.src = a.dataset.poster;
+    }
+    v.preload = "auto";
+    v.src = a.getAttribute("href");
+    fit();
+    document.body.appendChild(box);
+    document.body.style.overflow = "hidden";
+    v.muted = false;
+    const mute = () => { v.muted = true; snd.setAttribute("aria-pressed", "false"); snd.innerHTML = SOUND(false); };
+    v.play().catch(() => { mute(); v.play().catch(() => {}); });
+    // some phones refuse to start a film with sound: if it has not started after a moment, it starts without sound
+    let held = false;
+    setTimeout(() => { if (v.paused && !held && box.isConnected) { mute(); v.play().catch(() => {}); } }, 1200);
+    requestAnimationFrame(() => box.classList.remove("fade"));
+    cls.focus({ preventScroll: true });
     const mmss = (t) => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
     v.addEventListener("timeupdate", () => {
       if (!v.duration) return;
@@ -214,7 +234,7 @@
     });
     bar.addEventListener("click", (e) => { const r = bar.getBoundingClientRect(); if (v.duration) v.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * v.duration; });
     bar.addEventListener("keydown", (e) => { if (!v.duration) return; if (e.key === "ArrowRight") v.currentTime += 10; else if (e.key === "ArrowLeft") v.currentTime -= 10; else return; e.preventDefault(); });
-    v.addEventListener("click", () => (v.paused ? v.play() : v.pause()));
+    v.addEventListener("click", () => { held = true; v.paused ? v.play() : v.pause(); });
     snd.addEventListener("click", () => { v.muted = !v.muted; snd.setAttribute("aria-pressed", String(!v.muted)); snd.innerHTML = SOUND(!v.muted); });
     const shut = () => {
       box.classList.add("fade");
@@ -228,6 +248,11 @@
     };
     addEventListener("keydown", key, true);
     box.addEventListener("click", (e) => { if (e.target === box || cls.contains(e.target)) shut(); });
+  }
+  // a link to Tapes with #film-id (e.g. "See the runway" on a piece in Available) opens that film straight away
+  if (location.hash.length > 1) {
+    const fa = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (fa && fa.matches("a[data-film]")) setTimeout(() => openLongFilm(fa), 300);
   }
   document.addEventListener("click", (ev) => {
     const a = ev.target.closest && ev.target.closest("a[data-film]");
@@ -270,6 +295,9 @@
   /* ---------- article photographs: column on desktop, swipe strip on phones ---------- */
   $$("[data-strip]").forEach((strip) => {
     const figs = $$(".ph", strip), imgs = figs.map((f) => $("img", f)).filter(Boolean);   // a film in the strip is not a photo
+    // the photographs further down load as soon as the page is ready, so they are already there when you scroll to them
+    const eager = () => setTimeout(() => imgs.forEach((im) => { if (im.loading === "lazy") im.loading = "eager"; }), 200);
+    if (document.readyState === "complete") eager(); else addEventListener("load", eager, { once: true });
     imgs.forEach((im, n) => {
       im.addEventListener("click", () => { if (im.dataset.look && window.ACOpenLook) window.ACOpenLook(Number(im.dataset.look)); else openLightbox(imgs, n); });
     });
@@ -318,7 +346,7 @@
   /* ---------- the text column stays in view while the photographs scroll ---------- */
   const side = $("[data-side]");
   if (side) {
-    const fit = () => { side.style.setProperty("--stick", Math.min(0, innerHeight - side.offsetHeight) + "px"); };
+    const fit = () => { side.style.setProperty("--stick", Math.min(0, doc.clientHeight - side.offsetHeight) + "px"); };
     fit();
     addEventListener("resize", fit);
     document.addEventListener("ac:lang", fit);
@@ -645,10 +673,10 @@
       peek.style.setProperty("--y", y.toFixed(1) + "px");
       raf = Math.abs(ty - y) > 0.5 ? requestAnimationFrame(loop) : 0;
     };
-    const restY = () => Math.max(70, list.getBoundingClientRect().top + 5);
+    const restY = () => Math.max(70, list.getBoundingClientRect().top / zoom() + 5);
     const aim = (cy) => {
       const h = peek.offsetHeight || 300;
-      ty = cy === null ? restY() : Math.max(70, Math.min(innerHeight - h - 50, cy - h / 2));
+      ty = cy === null ? restY() : Math.max(70, Math.min(doc.clientHeight - h - 50, cy / zoom() - h / 2));
       if (!raf) raf = requestAnimationFrame(loop);
     };
     // every photograph is fetched and decoded ahead, one after the other, so changing entry is instant
