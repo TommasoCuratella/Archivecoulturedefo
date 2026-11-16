@@ -190,7 +190,7 @@
     box.innerHTML = '<div class="fl-wrap"><video playsinline preload="auto"></video>'
       + '<div class="fl-bar" role="slider" aria-label="Position" tabindex="0"><span class="fl-fill"></span></div>'
       + '<div class="fl-row"><span class="fl-time">0:00</span>'
-      + (pg ? '<a class="fl-page" href="' + pg + '">' + (a.dataset.pageLabel || "") + ' &rarr;</a>' : "") + '</div></div>'
+      + (pg ? '<a class="fl-page" href="' + pg + '"' + (/^https?:/.test(pg) ? ' target="_blank" rel="noopener"' : '') + '>' + (a.dataset.pageLabel || "") + ' &rarr;</a>' : "") + '</div></div>'
       + '<button type="button" class="film-close"><span data-l="en">Close</span><span data-l="it" lang="it">Chiudi</span></button>'
       + '<button type="button" class="vid-sound film-sound" aria-pressed="true">' + SOUND(true) + '</button>';
     const v = $("video", box), cls = $(".film-close", box), snd = $(".film-sound", box);
@@ -393,7 +393,13 @@
       playBtn.addEventListener("click", () => setPaused(!paused));
       setPaused(paused);
     }
-    slides.forEach((sl, n) => sl.addEventListener("click", () => { if (n !== i) { go(n); setPaused(true); } else openLightbox(imgs, n); }));
+    // a film in the strip opens as a film (the document click handler), the photos open in the lightbox
+    slides.forEach((sl, n) => sl.addEventListener("click", (ev) => {
+      const film = sl.querySelector("a[data-film]");
+      if (n !== i) { if (film) { ev.preventDefault(); ev.stopPropagation(); } go(n); setPaused(true); }
+      else if (film) setPaused(true);
+      else openLightbox(imgs, n);
+    }));
     // iPhone Safari never loads "lazy" photos that sit off-screen inside the moving track: load them all now,
     // and if one fails, ask for it again when it comes into view
     // a photo that did not arrive is asked for again at a fresh address (Safari keeps a failed answer for the same one), at most twice

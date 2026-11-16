@@ -182,7 +182,7 @@ button:active, .back:active { transform: scale(.97); }
 @media (hover: hover) { .portfolio a:hover { color: var(--muted); } }
 .portfolio.lookbook a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 .portfolio + .credits, .portfolio.lookbook + .credits { margin-top: 26px; }
-.art-meta { margin-top: 72px; color: var(--muted); }   /* the end of the page: set well apart from the credits */
+.art-meta { margin-top: 128px; color: var(--muted); }   /* the end of the page: set well apart from the credits */
 
 /* photographs: shown with their original colours, a quiet tone while they load */
 .ph img, .slide img, .row-thumb { background: var(--smoke); }
@@ -867,3 +867,18 @@ body:has(main.article, main.runway-show, main.product, main.interview-page, main
 body:has(main [data-runways]) .clock-fixed,
 body:has(main [data-runways]) .foot,
 body:has(main [data-runways]) .brand-fixed { display: none !important; }
+/* credits with several names: a name never breaks across two lines */
+.credits .nw { white-space: nowrap; }
+/* layout 2 with text on the left and the credits on the right (Eclipse) */
+.slideshow.split .art-body { width: calc(100% - 2 * var(--gut) - 48px); max-width: 1600px; display: grid; grid-template-columns: minmax(0, 540px) minmax(0, 1fr); gap: 0 72px; align-items: start; }
+.slideshow.split .split-side .credits { margin-top: 4px; }
+@media (max-width: 759px) { .slideshow.split .art-body { grid-template-columns: 1fr; gap: 0; } .slideshow.split .split-side .credits { margin-top: 32px; } }
+/* a film inside the photo strip: the poster with a small label, it opens the film */
+.film-slide > a { position: relative; display: block; }
+.film-slide .film-play { position: absolute; left: 16px; bottom: 14px; color: #fff; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 1px 10px rgba(0,0,0,.6); }
+
+
+/* the date closes the page: at the very bottom, on the left */
+main.article > .art-meta { grid-column: 1 / -1; align-self: flex-start; justify-self: start; margin: 128px 0 0; padding: 0 var(--gut) 24px; }
+@media (max-width: 959px) { .article.column > .art-meta { order: 4; margin-top: 96px; } }
+body:has(main.article:not(.about) > .art-meta) .foot { display: none; }
