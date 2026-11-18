@@ -862,7 +862,7 @@ body:has(main.article, main.runway-show, main.product, main.interview-page, main
 .film-close:focus, .film-sound:focus, .fl-bar:focus { outline: none; }
 .film-close:focus-visible, .film-sound:focus-visible { outline: none; color: var(--ink); }
 /* English only: interviews open in English, without the IT / EN switch */
-.qa-switch { display: none !important; }
+/* the interview has its own IT / EN switch, under the intro: it changes the interview only */
 /* a brand's runway list: no clock and no footer line at the bottom */
 body:has(main [data-runways]) .clock-fixed,
 body:has(main [data-runways]) .foot,
