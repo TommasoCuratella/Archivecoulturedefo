@@ -134,7 +134,17 @@
       if (Math.abs(dx) > 40 && set.length > 1) step(dx < 0 ? 1 : -1);
     });
   }
-  window.ACOpenLightbox = (imgs, n) => openLightbox(imgs, n);   // used by the Available pages
+  // interview pages: IT / EN changes the language of the interview only, not of the site; it opens in the original language
+  document.querySelectorAll(".interview-page").forEach((pg) => {
+    const btns = [...pg.querySelectorAll("[data-qa-set]")];
+    btns.forEach((b) => b.addEventListener("click", () => {
+      pg.setAttribute("data-qa-lang", b.dataset.qaSet);
+      btns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    }));
+  });
+  window.ACOpenLightbox = (imgs, n) => openLightbox(imgs, n);
+  // a gallery page (the shooting): every photograph opens in the lightbox
+  document.querySelectorAll("[data-gallery]").forEach((g) => { const imgs = [...g.querySelectorAll("img")]; imgs.forEach((im, n) => im.addEventListener("click", () => openLightbox(imgs, n))); addEventListener("load", () => setTimeout(() => imgs.forEach((im) => { im.loading = "eager"; }), 200), { once: true }); });   // used by the Available pages
   // "Full lookbook": opens the article's photographs in the lightbox, from the first
   document.querySelectorAll("[data-lookbook]").forEach((a) => a.addEventListener("click", (e) => {
     if (window.ACOpenLook) { e.preventDefault(); window.ACOpenLook(0); return; }

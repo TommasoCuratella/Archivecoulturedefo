@@ -795,7 +795,7 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .lv-media { flex: 0 1 auto; }
 .lv-media .lv-stage { flex: 1 1 auto; min-height: 0; width: auto; }
 .lv-media .lv-big { height: 100%; width: auto; max-width: 52vw; }
-.lv-group .lv-desc { flex: none; width: 320px; max-height: 100%; overflow-y: auto; scrollbar-width: thin; }
+.lv-group .lv-desc { flex: none; width: auto; max-width: 320px; max-height: 100%; overflow-y: auto; scrollbar-width: thin; }
 .lookbook-body .clock { display: none; }
 @media (max-width: 899px) {
   .lv-group { flex-direction: column; gap: 18px; justify-content: flex-start; }
@@ -862,7 +862,7 @@ body:has(main.article, main.runway-show, main.product, main.interview-page, main
 .film-close:focus, .film-sound:focus, .fl-bar:focus { outline: none; }
 .film-close:focus-visible, .film-sound:focus-visible { outline: none; color: var(--ink); }
 /* English only: interviews open in English, without the IT / EN switch */
-.qa-switch { display: none !important; }
+/* the interview has its own IT / EN switch, under the intro: it changes the interview only */
 /* a brand's runway list: no clock and no footer line at the bottom */
 body:has(main [data-runways]) .clock-fixed,
 body:has(main [data-runways]) .foot,
@@ -878,7 +878,21 @@ body:has(main [data-runways]) .brand-fixed { display: none !important; }
 .film-slide .film-play { position: absolute; left: 16px; bottom: 14px; color: #fff; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 1px 10px rgba(0,0,0,.6); }
 
 
-/* the date closes the page: at the very bottom, on the left */
-main.article > .art-meta { grid-column: 1 / -1; align-self: flex-start; justify-self: start; margin: 128px 0 0; padding: 0 var(--gut) 24px; }
-@media (max-width: 959px) { .article.column > .art-meta { order: 4; margin-top: 96px; } }
-body:has(main.article:not(.about) > .art-meta) .foot { display: none; }
+/* the shooting: rows of photographs of the same height, portrait and landscape mixed */
+.lookbook-page .sh-link { margin-top: 44px; }
+.sh-grid { display: flex; flex-direction: column; gap: 16px; }
+.sh-row { display: flex; gap: 16px; }
+.sh-ph { flex: var(--r) 1 0; min-width: 0; margin: 0; }
+.sh-ph img { display: block; width: 100%; height: auto; background: var(--smoke); cursor: zoom-in; transition: opacity .25s ease; }
+@media (hover: hover) { .sh-ph img:hover { opacity: .85; } }
+@media (max-width: 759px) { .sh-grid, .sh-row { gap: 8px; } .sh-row { flex-direction: column; } .sh-ph { flex: none; } }
+/* the look and its text sit in the middle of the page as one group: the photograph gets a definite height, so its box is as wide as the photograph */
+@media (min-width: 900px) {
+  .lv-media { height: auto; }
+  .lv-media .lv-stage { flex: none; }
+  .lv-media .lv-big { height: calc(100vh - 222px); height: calc(100svh - 222px); max-height: none; }
+}
+
+.lookbook-page .sh-credits { margin-top: 48px; max-width: 760px; }
+.credits .cred-head { grid-column: 1 / -1; color: var(--ink); margin-bottom: 4px; }
+.sh-credits .cred-head { margin-top: 0; }
