@@ -30,7 +30,9 @@
 /memory                                                   /memory.html                                                   200
 /memory-admin                                             /memory-admin.html                                             200
 /runways/dior-homme/autumn-winter-2004 /runways/dior-homme/fall-winter-2004 301!
-/tapes /tapes.html 200
+/files /files.html 200
+/tapes /files 301!
+/tapes.html /files 301!
 /runways /runways.html 200
 /runways/dior-homme /runways/dior-homme.html 200
 /runways/ann-demeulemeester /runways/ann-demeulemeester.html 200
