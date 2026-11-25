@@ -872,7 +872,8 @@ body:has(main [data-runways]) .brand-fixed { display: none !important; }
 /* layout 2 with text on the left and the credits on the right (Eclipse) */
 .slideshow.split .art-body { width: calc(100% - 2 * var(--gut) - 48px); max-width: 1600px; display: grid; grid-template-columns: minmax(0, 540px) minmax(0, 1fr); gap: 0 72px; align-items: start; }
 .slideshow.split .split-side .credits { margin-top: 4px; }
-@media (max-width: 759px) { .slideshow.split .art-body { grid-template-columns: 1fr; gap: 0; } .slideshow.split .split-side .credits { margin-top: 32px; } }
+.slideshow.split .split-text, .slideshow.split .split-side { min-width: 0; }
+@media (max-width: 959px) { .slideshow.split .art-body { grid-template-columns: 1fr; gap: 0; } .slideshow.split .split-side .credits { margin-top: 32px; } }
 /* a film inside the photo strip: the poster with a small label, it opens the film */
 .film-slide > a { position: relative; display: block; }
 .film-slide .film-play { position: absolute; left: 16px; bottom: 14px; color: #fff; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 1px 10px rgba(0,0,0,.6); }
@@ -922,10 +923,11 @@ body:has(main.article:not(.about) > .art-meta) .foot { display: none; }
 @keyframes lift-in { from { opacity: 0; transform: translateY(18px) scale(.985); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0); } to { opacity: 1; transform: none; box-shadow: 0 0 0 1px rgba(0, 0, 0, .04), 0 12px 48px 6px rgba(0, 0, 0, .16); } }
 @media (prefers-reduced-motion: reduce) { .show.lifted .slide img { animation: none; } }
 
-/* phones: long credit lines (several names) must not stretch the page sideways */
+/* a credits line with several names must never stretch the page sideways:
+   the value wraps when its column is too narrow, and only then */
+.credits, .credits dd { min-width: 0; }
+.credits dd { overflow-wrap: anywhere; }
+.credits dd .nw { white-space: normal; }
 @media (max-width: 959px) {
-  .column .art-body, .slideshow .art-body, .slideshow.split .split-text, .slideshow.split .split-side { min-width: 0; }
-  .credits { min-width: 0; }
-  .credits dd { min-width: 0; overflow-wrap: anywhere; }
-  .credits dd .nw { white-space: normal; }
+  .column .art-body, .slideshow .art-body { min-width: 0; }
 }
