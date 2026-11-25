@@ -309,9 +309,30 @@
   /* ---------- article photographs: column on desktop, swipe strip on phones ---------- */
   $$("[data-strip]").forEach((strip) => {
     const figs = $$(".ph", strip), imgs = figs.map((f) => $("img", f)).filter(Boolean);   // a film in the strip is not a photo
-    // the photographs further down load as soon as the page is ready, so they are already there when you scroll to them
-    const eager = () => setTimeout(() => imgs.forEach((im) => { if (im.loading === "lazy") im.loading = "eager"; }), 200);
+    // the photographs further down load as soon as the page is ready, so they are already there when you scroll to them.
+    // one at a time, in order: a dozen large photographs asked for at once stall each other on a phone connection
+    const chase = (im) => {                       // a photograph that did not arrive is asked for again, at most twice
+      const n = Number(im.dataset.tries || 0);
+      if (n >= 2) return;
+      im.dataset.tries = String(n + 1);
+      im.src = im.getAttribute("src").split("?")[0] + "?r=" + Date.now();
+    };
+    imgs.forEach((im) => im.addEventListener("error", () => chase(im)));
+    const eager = () => setTimeout(() => {
+      const rest = imgs.filter((im) => im.loading === "lazy");
+      const next = () => {
+        const im = rest.shift();
+        if (!im) return;
+        if (im.complete && im.naturalWidth) return next();
+        const on = () => { im.removeEventListener("load", on); im.removeEventListener("error", on); next(); };
+        im.addEventListener("load", on); im.addEventListener("error", on);
+        im.loading = "eager";
+        if (im.complete) on();
+      };
+      next(); next();                             // two in flight, so one slow photograph does not hold up the rest
+    }, 200);
     if (document.readyState === "complete") eager(); else addEventListener("load", eager, { once: true });
+    addEventListener("load", () => imgs.forEach((im) => { if (im.complete && !im.naturalWidth) chase(im); }), { once: true });
     imgs.forEach((im, n) => {
       im.addEventListener("click", () => { if (im.dataset.look && window.ACOpenLook) window.ACOpenLook(Number(im.dataset.look)); else openLightbox(imgs, n); });
     });

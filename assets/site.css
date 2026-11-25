@@ -376,7 +376,8 @@ body:has(.notice-fixed) main { padding-bottom: 110px; }
   /* category / designer and date stay on one line */
   .rows .row .c { grid-column: 2; grid-row: 2; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .rows .row .d { grid-column: 3; grid-row: 2; justify-self: end; }
-  .letters .row a { grid-template-columns: 1fr; }
+  .rows:not(:has(.row-thumb)) .row a { grid-template-columns: minmax(0, 1fr) auto; }
+  .letters .rows .row a { grid-template-columns: 1fr; }
   .letters .row .c { grid-column: 1; justify-self: start; }
 }
 
