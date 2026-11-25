@@ -143,6 +143,12 @@
     }));
   });
   window.ACOpenLightbox = (imgs, n) => openLightbox(imgs, n);   // used by the Available pages
+  // a gallery page (the shooting): every photograph opens in the lightbox
+  document.querySelectorAll("[data-gallery]").forEach((g) => {
+    const imgs = [...g.querySelectorAll("img")];
+    imgs.forEach((im, n) => im.addEventListener("click", () => openLightbox(imgs, n)));
+    addEventListener("load", () => setTimeout(() => imgs.forEach((im) => { im.loading = "eager"; }), 200), { once: true });
+  });
   // "Full lookbook": opens the article's photographs in the lightbox, from the first
   document.querySelectorAll("[data-lookbook]").forEach((a) => a.addEventListener("click", (e) => {
     if (window.ACOpenLook) { e.preventDefault(); window.ACOpenLook(0); return; }

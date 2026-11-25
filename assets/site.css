@@ -795,7 +795,7 @@ body:has(main.article:not(.about)) .foot .foot-l { display: none; }
 .lv-media { flex: 0 1 auto; }
 .lv-media .lv-stage { flex: 1 1 auto; min-height: 0; width: auto; }
 .lv-media .lv-big { height: 100%; width: auto; max-width: 52vw; }
-.lv-group .lv-desc { flex: none; width: 320px; max-height: 100%; overflow-y: auto; scrollbar-width: thin; }
+.lv-group .lv-desc { flex: none; width: auto; max-width: 320px; max-height: 100%; overflow-y: auto; scrollbar-width: thin; }
 .lookbook-body .clock { display: none; }
 @media (max-width: 899px) {
   .lv-group { flex-direction: column; gap: 18px; justify-content: flex-start; }
@@ -877,8 +877,55 @@ body:has(main [data-runways]) .brand-fixed { display: none !important; }
 .film-slide > a { position: relative; display: block; }
 .film-slide .film-play { position: absolute; left: 16px; bottom: 14px; color: #fff; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 1px 10px rgba(0,0,0,.6); }
 
+/* layout 2: the photographs in the middle, the text on their left and right (ANOMALIE) */
+.article.tri .art-head { padding: var(--top) var(--gut) 0; max-width: none; }
+.tri-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); gap: 0 48px; padding: 48px var(--gut) 0; align-items: start; }
+
+.tri .art-gallery { padding-top: 0; }
+.tri .story p:first-child { margin-top: 0; }
+.tri-r .credits { margin-top: 40px; grid-template-columns: fit-content(38%) minmax(0, 1fr); column-gap: 20px; }
+.tri-grid > * { min-width: 0; }
+@media (max-width: 1099px) {
+  .tri-grid { display: flex; flex-direction: column; padding: 28px 0 0; }
+  .tri-l, .tri-r { position: static; padding: 0 var(--gut); max-width: 600px; }
+  .tri .art-gallery { order: -1; width: 100%; margin-bottom: 36px; }
+  .tri-r { margin-top: 1.05em; }
+}
+@media (min-width: 960px) and (max-width: 1099px) { .tri .strip { flex-direction: column; padding: 0 var(--gut); } }
 
 /* the date closes the page: at the very bottom, on the left */
 main.article > .art-meta { grid-column: 1 / -1; align-self: flex-start; justify-self: start; margin: 128px 0 0; padding: 0 var(--gut) 24px; }
 @media (max-width: 959px) { .article.column > .art-meta { order: 4; margin-top: 96px; } }
 body:has(main.article:not(.about) > .art-meta) .foot { display: none; }
+
+/* the shooting: rows of photographs of the same height, portrait and landscape mixed */
+.lookbook-page .sh-link { margin-top: 44px; }
+.sh-grid { display: flex; flex-direction: column; gap: 16px; }
+.sh-row { display: flex; gap: 16px; }
+.sh-ph { flex: var(--r) 1 0; min-width: 0; margin: 0; }
+.sh-ph img { display: block; width: 100%; height: auto; background: var(--smoke); cursor: zoom-in; transition: opacity .25s ease; }
+@media (hover: hover) { .sh-ph img:hover { opacity: .85; } }
+@media (max-width: 759px) { .sh-grid, .sh-row { gap: 8px; } .sh-row { flex-direction: column; } .sh-ph { flex: none; } }
+/* the look and its text sit in the middle of the page as one group: the photograph gets a definite height, so its box is as wide as the photograph */
+@media (min-width: 900px) {
+  .lv-media { height: auto; }
+  .lv-media .lv-stage { flex: none; }
+  .lv-media .lv-big { height: calc(100vh - 222px); height: calc(100svh - 222px); max-height: none; }
+}
+
+.lookbook-page .sh-credits { margin-top: 48px; max-width: 760px; }
+.credits .cred-head { grid-column: 1 / -1; color: var(--ink); margin-bottom: 4px; }
+.sh-credits .cred-head { margin-top: 0; }
+
+/* portrait lifted off the white page, like the Explore view */
+.show.lifted .slide img { box-shadow: 0 0 0 1px rgba(0, 0, 0, .04), 0 12px 48px 6px rgba(0, 0, 0, .16); animation: lift-in 1.1s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes lift-in { from { opacity: 0; transform: translateY(18px) scale(.985); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0); } to { opacity: 1; transform: none; box-shadow: 0 0 0 1px rgba(0, 0, 0, .04), 0 12px 48px 6px rgba(0, 0, 0, .16); } }
+@media (prefers-reduced-motion: reduce) { .show.lifted .slide img { animation: none; } }
+
+/* phones: long credit lines (several names) must not stretch the page sideways */
+@media (max-width: 959px) {
+  .column .art-body, .slideshow .art-body, .slideshow.split .split-text, .slideshow.split .split-side { min-width: 0; }
+  .credits { min-width: 0; }
+  .credits dd { min-width: 0; overflow-wrap: anywhere; }
+  .credits dd .nw { white-space: normal; }
+}
