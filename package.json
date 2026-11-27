@@ -1,0 +1,9 @@
+{
+  "name": "archivecoulture",
+  "private": true,
+  "description": "Static site. The only dependency is for the visit counter (netlify/functions).",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "11.1.9"
+  }
+}
