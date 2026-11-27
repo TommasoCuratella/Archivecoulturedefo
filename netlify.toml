@@ -1,0 +1,6 @@
+# Only one setting here; everything else stays as configured in the Netlify UI.
+# The Firebase web key used by the Memory page (assets/memory.js, memory-admin.html) is public by design:
+# Firebase puts it in every web page and protects the data with its security rules.
+# Netlify's secret scan flags it as "likely secret", so it is excluded here by value.
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDCnAWup6HLJilcsHevi7MJpfmQIOaXmCQ"
