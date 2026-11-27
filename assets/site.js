@@ -766,3 +766,19 @@
     document.addEventListener("ac:rows", () => { const f = $$("[data-peek]").find((a) => !a.closest(".row").hidden); if (f) showOf(f); peek.classList.toggle("on", !!f); aim(null); });
   }
 })();
+
+// Visit counter (our own, netlify/functions/hit.mjs): one tiny request per page view, no cookies, nothing personal.
+// It counts only on the real domain, never on drafts or previews. Results: archivecoulture.com/stats
+(() => {
+  try {
+    if (!/(^|\.)archivecoulture\.com$/.test(location.hostname)) return;
+    const q = new URLSearchParams(location.search);
+    const data = JSON.stringify({ p: location.pathname, r: document.referrer, s: q.get("utm_source") || "", c: q.get("utm_campaign") || "" });
+    if (!(navigator.sendBeacon && navigator.sendBeacon("/api/hit", data))) fetch("/api/hit", { method: "POST", body: data, keepalive: true }).catch(() => {});
+    // once counted, the link tags are removed from the address bar, so shared links stay clean
+    if (q.has("utm_source") || q.has("utm_campaign")) {
+      ["utm_source", "utm_medium", "utm_campaign"].forEach((k) => q.delete(k));
+      history.replaceState(history.state, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+    }
+  } catch (e) {}
+})();

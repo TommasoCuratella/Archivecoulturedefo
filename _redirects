@@ -1,4 +1,8 @@
 # Each page is its own file; these rewrites serve them at clean addresses (same URLs as before).
+# Short links for Instagram and TikTok: they open the page and tell the visit counter where the visitor came from.
+/go/ig-bio        /?utm_source=ig-bio        302!
+/go/tiktok-bio    /?utm_source=tiktok-bio    302!
+/go/ig-story      /?utm_source=ig-story      302!
 /archive                                                  /archive.html                                                  200
 /archive/helmut-lang-denim-jacket-1999                    /archive/helmut-lang-denim-jacket-1999.html                    200
 /archive/post-mortem-2026-curatella-tommaso               /archive/post-mortem-2026-curatella-tommaso.html               200
