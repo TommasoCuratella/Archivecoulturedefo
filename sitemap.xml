@@ -172,6 +172,16 @@
     <image:image><image:loc>https://archivecoulture.com/images/designer-hedi-slimane/06.webp</image:loc></image:image>
   </url>
   <url>
+    <loc>https://archivecoulture.com/designers/ann-demeulemeester</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+      <image:image><image:loc>https://archivecoulture.com/images/designer-ann-demeulemeester/01.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-ann-demeulemeester/02.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-ann-demeulemeester/03.webp</image:loc></image:image>
+    <image:image><image:loc>https://archivecoulture.com/images/designer-ann-demeulemeester/04.webp</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://archivecoulture.com/designers/helmut-lang</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
